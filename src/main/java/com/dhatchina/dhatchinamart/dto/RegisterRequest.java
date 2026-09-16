@@ -8,6 +8,7 @@ public class RegisterRequest {
 
     private String name;
     private String email;
+    private String mobileNumber;
     private String password;
     private String confirmPassword;
     private String role;
@@ -26,6 +27,14 @@ public class RegisterRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     public String getPassword() {
@@ -55,6 +64,7 @@ public class RegisterRequest {
     public void validate() {
         setName(ValidationUtil.requireName(name, "Name"));
         setEmail(ValidationUtil.requireEmail(email));
+        setMobileNumber(ValidationUtil.requireIndianMobileNumber(mobileNumber));
         if (password == null || password.isBlank()) {
             throw new ValidationException("Password is required");
         }

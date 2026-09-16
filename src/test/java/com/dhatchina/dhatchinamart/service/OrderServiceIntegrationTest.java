@@ -48,6 +48,7 @@ class OrderServiceIntegrationTest {
         User buyer = new User();
         buyer.setName("Test Buyer");
         buyer.setEmail("test-buyer@test.com");
+        buyer.setMobileNumber("9876500002");
         buyer.setPasswordHash(AuthUtil.hashPassword("TestPass@123"));
         buyer.setRole(User.Role.BUYER);
         buyerId = userDAO.insert(buyer);

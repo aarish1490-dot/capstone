@@ -9,6 +9,7 @@
         <div class="alert alert-error"><c:out value="${error}"/></div>
     </c:if>
     <form action="${ctx}/register" method="post">
+        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
         <div class="form-group">
             <label for="name">Full Name</label>
             <input type="text" id="name" name="name" required maxlength="100"
@@ -18,6 +19,17 @@
             <label for="email">Email</label>
             <input type="email" id="email" name="email" required maxlength="255"
                    value="<c:out value='${email}'/>">
+        </div>
+        <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <div class="mobile-input">
+                <span class="mobile-prefix">+91</span>
+                <input type="tel" id="mobileNumber" name="mobileNumber" maxlength="10"
+                       pattern="[6-9][0-9]{9}" inputmode="numeric" required
+                       placeholder="9876543210"
+                       value="<c:out value='${mobileNumber}'/>">
+            </div>
+            <div class="form-hint">10-digit Indian mobile number (used for OTP login)</div>
         </div>
         <div class="form-group">
             <label for="password">Password</label>

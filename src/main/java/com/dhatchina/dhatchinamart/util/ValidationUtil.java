@@ -5,6 +5,7 @@ import com.dhatchina.dhatchinamart.exception.ValidationException;
 public final class ValidationUtil {
 
     private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private static final String INDIAN_MOBILE_REGEX = "^[6-9]\\d{9}$";
     private static final int MAX_NAME_LENGTH = 100;
     private static final int MAX_EMAIL_LENGTH = 255;
     private static final int MAX_PRODUCT_NAME_LENGTH = 200;
@@ -32,6 +33,25 @@ public final class ValidationUtil {
             throw new ValidationException("Email is too long");
         }
         return email.trim().toLowerCase();
+    }
+
+    /**
+     * Validates and normalizes a 10-digit Indian mobile number.
+     * Leading "+91" / "91" prefixes and non-digit characters are stripped.
+     * Returns the normalized 10-digit number.
+     */
+    public static String requireIndianMobileNumber(String mobileNumber) {
+        if (mobileNumber == null || mobileNumber.trim().isEmpty()) {
+            throw new ValidationException("Mobile number is required");
+        }
+        String digits = mobileNumber.trim().replaceAll("\\D", "");
+        if (digits.startsWith("91") && digits.length() == 12) {
+            digits = digits.substring(2);
+        }
+        if (digits.length() != 10 || !digits.matches(INDIAN_MOBILE_REGEX)) {
+            throw new ValidationException("Please enter a valid 10-digit mobile number.");
+        }
+        return digits;
     }
 
     public static String requireProductName(String name) {

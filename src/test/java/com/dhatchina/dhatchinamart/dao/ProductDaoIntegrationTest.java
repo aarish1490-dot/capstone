@@ -86,6 +86,77 @@ class ProductDaoIntegrationTest {
     }
 
     @Test
+    void updatePersistsChanges() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("Original Name");
+        product.setDescription("Old description");
+        product.setPrice(new BigDecimal("50.00"));
+        product.setStockQty(3);
+        product.setCategory("Books");
+        long id = productDAO.insert(product);
+
+        product.setId(id);
+        product.setName("Updated Name");
+        product.setDescription("New description");
+        product.setPrice(new BigDecimal("75.25"));
+        product.setStockQty(12);
+        product.setCategory("Electronics");
+        product.setImageUrl("https://example.com/new.png");
+
+        boolean changed = productDAO.update(product);
+
+        assertTrue(changed);
+        Optional<Product> found = productDAO.findById(id);
+        assertTrue(found.isPresent());
+        assertEquals("Updated Name", found.get().getName());
+        assertEquals("New description", found.get().getDescription());
+        assertEquals(new BigDecimal("75.25"), found.get().getPrice());
+        assertEquals(12, found.get().getStockQty());
+        assertEquals("Electronics", found.get().getCategory());
+        assertEquals("https://example.com/new.png", found.get().getImageUrl());
+    }
+
+    @Test
+    void updateMissingProductReturnsFalse() {
+        Product product = new Product();
+        product.setId(999999L);
+        product.setName("Ghost");
+        product.setPrice(new BigDecimal("1.00"));
+        product.setStockQty(1);
+        product.setCategory("Home");
+
+        assertFalse(productDAO.update(product));
+    }
+
+    @Test
+    void deleteRemovesProduct() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("To Delete");
+        product.setPrice(new BigDecimal("10.00"));
+        product.setStockQty(1);
+        product.setCategory("Home");
+        long id = productDAO.insert(product);
+
+        assertTrue(productDAO.delete(id));
+        assertFalse(productDAO.findById(id).isPresent());
+    }
+
+    @Test
+    void deleteMissingProductReturnsFalse() {
+        assertFalse(productDAO.delete(999999L));
+    }
+
+    @Test
+    void findProductsBySeller() {
+        List<Product> sellerProducts = productDAO.findBySeller(1L);
+
+        assertTrue(sellerProducts.stream().allMatch(p -> p.getSellerId() == 1L));
+        assertFalse(sellerProducts.isEmpty());
+    }
+
+    @Test
     void adminAccountHasBcryptHash() {
         Optional<User> admin = userDAO.findByEmail("admin@dhatchinamart.com");
         assertTrue(admin.isPresent());

@@ -41,9 +41,15 @@
             params.set("quantity", quantity);
             params.set("format", "json");
 
+            var headers = {"Content-Type": "application/x-www-form-urlencoded"};
+            var meta = document.querySelector('meta[name="_csrf"]');
+            if (meta) {
+                headers["X-CSRF-Token"] = meta.content;
+            }
+
             fetch(baseUrl + "/cart", {
                 method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                headers: headers,
                 body: params.toString()
             })
                 .then(function (res) { return res.json(); })

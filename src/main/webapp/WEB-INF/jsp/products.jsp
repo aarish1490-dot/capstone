@@ -61,6 +61,7 @@
                             <c:choose>
                                 <c:when test="${p.stockQty > 0}">
                                     <form action="${ctx}/cart" method="post" style="flex:1;">
+                                        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
                                         <input type="hidden" name="action" value="add">
                                         <input type="hidden" name="productId" value="${p.id}">
                                         <input type="hidden" name="quantity" value="1">

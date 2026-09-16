@@ -41,6 +41,7 @@
         This is a demonstration checkout. No real payment is processed. A confirmation will simulate the payment gateway.
     </p>
     <form action="${ctx}/checkout" method="post">
+        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
         <button type="submit" class="btn" style="padding:12px 28px;">Confirm Mock Payment</button>
         <a href="${ctx}/cart" class="btn btn-secondary">Back to Cart</a>
     </form>

@@ -8,6 +8,8 @@ public interface UserDAO {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByMobileNumber(String mobileNumber);
+
     Optional<User> findById(long id);
 
     long insert(User user);

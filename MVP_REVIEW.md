@@ -6,16 +6,53 @@ Status: **MVP complete** — all core flows implemented, verified end-to-end, an
 
 | Layer                    | Result |
 | ------------------------ | ------ |
-| Unit + integration tests | **29/29 passed** (`mvn clean package`) |
-| Black-box E2E checks     | **30/30 passed** against the deployed WAR (buyer, seller, admin journeys + RBAC) |
+| Unit + integration tests | **67/67 passed** (`mvn clean verify`) |
+| Black-box E2E checks     | Verified against the deployed WAR on Tomcat (buyer, seller, admin journeys, OTP login, RBAC) |
 | Build                    | Single `dhatchinamart.war`, `BUILD SUCCESS` |
+
+## Mobile Number + OTP Authentication
+
+### Registration
+
+**Name + Email + Mobile + Password** (+ account type):
+
+- Mobile number is mandatory and validated as a 10-digit Indian number
+  (`6-9` prefix; rejects `123`, `0000000000`, `abcdefghij` …).
+- `users.mobile_number` is unique — duplicate mobile or duplicate email is rejected
+  with a friendly message.
+- Passwords stay bcrypt-hashed (`password_hash` kept). New columns are added via
+  the idempotent migration `db/migrations/001_otp_mobile_number.sql` — existing
+  users are never deleted (they get a placeholder mobile on upgrade).
+
+### Login
+
+```
+Mobile Number
+  → Send OTP
+  → Checked against users table ("Mobile number is not registered." otherwise)
+  → Secure 6-digit OTP (SecureRandom, SHA-256-hashed in otp_verifications)
+  → SMS provider (mock in dev, real in production)
+  → User enters OTP
+  → Verified → HTTP session created (userId + role, AuthFilter-compatible)
+  → Role-based redirect: BUYER → home, SELLER → /seller, ADMIN → /admin
+```
+
+- OTP expiry: **5 minutes** · one-time use · max **5 attempts** · resend cooldown
+  **60 s** (with live countdown on the page) · new OTP invalidates the previous one.
+- OTPs are never stored in plain text, never logged in production, and the full
+  mobile number is never shown back (masked `******3210`). In development mode
+  (`OTP_MODE=development`, default) the OTP is printed to the log **and shown on
+  the login page** in a "DEVELOPMENT ONLY" box; with `OTP_MODE=production` the
+  app fails fast at startup unless a real SMS provider is configured, so the
+  mock provider can never run in production.
+- Email + password login remains available as a secondary flow (demo accounts).
 
 ## Who Can Log In
 
-Only `admin@dhatchinamart.com / Admin@123` is pre-seeded. Every other account is
-self-registered on the sign-up page as a Buyer or Seller — credentials are stored
-(bcrypt-hashed) in the H2 database and work on future logins. Roles are fixed at
-registration.
+Only `admin@dhatchinamart.com / Admin@123` (mobile `9876500001`) is pre-seeded.
+Every other account is self-registered on the sign-up page as a Buyer or Seller —
+credentials are stored (bcrypt-hashed) in the H2 database and work on future
+logins via mobile + OTP. Roles are fixed at registration.
 
 ## What's In (MVP scope)
 
@@ -31,7 +68,12 @@ registration.
 - Security: session + role filters (302 login redirect, 403 on wrong role),
   BCrypt password hashing, CSRF tokens on all state-changing forms, escaping on
   all user output, PreparedStatements everywhere, custom 404s.
-- Reusable embedded H2 DB (file-based, auto schema + seed on first boot).
+- Mobile OTP authentication: `SecureRandom` 6-digit OTPs, SHA-256-hashed storage,
+  5-minute expiry, one-time use, max 5 attempts, 60 s resend cooldown with
+  countdown UI, rate limiting per OTP, mock SMS provider in dev (`[DEV OTP]`
+  log lines) and env-configured real provider in production.
+- Reusable embedded H2 DB (file-based, auto schema + seed on first boot,
+  idempotent migrations on every boot).
 - Catalog: 40 seed products across 5 categories (Accessories, Books, Clothing,
   Electronics, Home — 8 each), owned by the platform admin; registered sellers
   add their own.
@@ -53,8 +95,8 @@ registration.
 - Order status transitions by seller (mark DELIVERED / CANCELLED) and order
   cancellation by buyer — statuses exist in the schema and render in the UI.
 - Search pagination (large catalogs), product images are remote placeholders.
-- Email notifications, password reset, "forgot password".
-- Wishlists, reviews/ratings, coupon codes.
+- Password reset / "forgot password"; profile page to edit the mobile number.
+- Email notifications, wishlists, reviews/ratings, coupon codes.
 - Image upload / storage (currently `imageUrl` text field).
 - Dashboard charts; today's numbers are counts only.
 - H2 → MySQL/PostgreSQL swap (DAO layer isolates the SQL; the app runs on
@@ -64,4 +106,6 @@ registration.
 
 1. `mvn clean package`
 2. Copy `target/dhatchinamart.war` into Tomcat 9's `webapps/` and start Tomcat.
-3. Open `http://localhost:9090/dhatchinamart` (see README — admin is seeded; everyone else self-registers).
+3. Open `http://localhost:9090/dhatchinamart` (admin is seeded with mobile
+   `9876500001`; everyone else self-registers). In dev mode the OTP is printed to
+   `logs/dhatchinamart.log` as `[DEV OTP] OTP: xxxxxx`.

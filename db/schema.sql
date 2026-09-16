@@ -1,5 +1,6 @@
 -- DhatchinaMart database schema (H2 2.x)
 
+DROP TABLE IF EXISTS otp_verifications;
 DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
@@ -10,10 +11,25 @@ CREATE TABLE users (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     name          VARCHAR(100)  NOT NULL,
     email         VARCHAR(255)  NOT NULL UNIQUE,
+    mobile_number VARCHAR(10)   NOT NULL UNIQUE,
     password_hash VARCHAR(255)  NOT NULL,
     role          VARCHAR(20)   NOT NULL,
     created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Temporary one-time OTPs. OTPs are NEVER stored in plain text;
+-- only a SHA-256 hash of the OTP is persisted.
+CREATE TABLE otp_verifications (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id    BIGINT       NOT NULL,
+    otp_hash   VARCHAR(64)  NOT NULL,
+    expires_at TIMESTAMP    NOT NULL,
+    attempts   INT          NOT NULL DEFAULT 0,
+    verified   BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_otp_verifications_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+CREATE INDEX idx_otp_verifications_user_id ON otp_verifications (user_id);
 
 CREATE TABLE products (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,

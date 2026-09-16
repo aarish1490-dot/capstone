@@ -5,7 +5,7 @@
 
 <div class="empty-state">
     <h3>403 - Access denied</h3>
-    <p>You do not have permission to view this page.</p>
+    <p><c:out value="${empty error ? 'You do not have permission to view this page.' : error}"/></p>
     <a href="${ctx}/" class="btn" style="margin-top:14px;">Go to Home</a>
 </div>
 

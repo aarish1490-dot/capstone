@@ -8,6 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" content="${_csrfToken}">
     <title><c:out value="${empty title ? 'DhatchinaMart' : title}"/> - DhatchinaMart</title>
     <link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
@@ -28,7 +29,10 @@
                         <a href="${ctx}/admin">Admin Dashboard</a>
                     </c:if>
                     <span class="user-chip"><c:out value="${sessionScope.user.name}"/></span>
-                    <a href="${ctx}/logout">Logout</a>
+                    <form action="${ctx}/logout" method="post" class="logout-form">
+                        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
+                        <button type="submit" class="logout-link">Logout</button>
+                    </form>
                 </c:when>
                 <c:otherwise>
                     <a href="${ctx}/login">Login</a>

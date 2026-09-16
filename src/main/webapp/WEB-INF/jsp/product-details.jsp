@@ -36,6 +36,7 @@
 
         <c:if test="${product.stockQty > 0}">
             <form action="${ctx}/cart" method="post">
+                <input type="hidden" name="_csrf" value="${_csrfToken}"/>
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="productId" value="${product.id}">
                 <div class="qty-row">

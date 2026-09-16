@@ -51,6 +51,37 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
+    public boolean update(Product product) {
+        String sql = "UPDATE products SET name = ?, description = ?, price = ?, stock_qty = ?, "
+                + "category = ?, image_url = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, product.getName());
+            ps.setString(2, product.getDescription());
+            ps.setBigDecimal(3, product.getPrice());
+            ps.setInt(4, product.getStockQty());
+            ps.setString(5, product.getCategory());
+            ps.setString(6, product.getImageUrl());
+            ps.setLong(7, product.getId());
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update product", e);
+        }
+    }
+
+    @Override
+    public boolean delete(long id) {
+        String sql = "DELETE FROM products WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to delete product", e);
+        }
+    }
+
+    @Override
     public Optional<Product> findById(long id) {
         String sql = "SELECT " + COLUMNS + " FROM products p JOIN users u ON u.id = p.seller_id WHERE p.id = ?";
         try (Connection conn = dataSource.getConnection();

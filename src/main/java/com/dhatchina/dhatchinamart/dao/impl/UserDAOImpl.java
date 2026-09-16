@@ -22,7 +22,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT id, name, email, password_hash, role, created_at FROM users WHERE email = ?";
+        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE email = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -38,8 +38,25 @@ public class UserDAOImpl implements UserDAO {
     }
 
     @Override
+    public Optional<User> findByMobileNumber(String mobileNumber) {
+        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE mobile_number = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, mobileNumber);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(map(rs));
+                }
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find user by mobile number", e);
+        }
+    }
+
+    @Override
     public Optional<User> findById(long id) {
-        String sql = "SELECT id, name, email, password_hash, role, created_at FROM users WHERE id = ?";
+        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -56,13 +73,14 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public long insert(User user) {
-        String sql = "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (name, email, mobile_number, password_hash, role) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPasswordHash());
-            ps.setString(4, user.getRole().name());
+            ps.setString(3, user.getMobileNumber());
+            ps.setString(4, user.getPasswordHash());
+            ps.setString(5, user.getRole().name());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -106,6 +124,7 @@ public class UserDAOImpl implements UserDAO {
         user.setId(rs.getLong("id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
+        user.setMobileNumber(rs.getString("mobile_number"));
         user.setPasswordHash(rs.getString("password_hash"));
         String role = rs.getString("role");
         user.setRole(role == null ? null : User.Role.valueOf(role));

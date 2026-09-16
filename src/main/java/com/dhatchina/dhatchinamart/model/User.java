@@ -11,6 +11,7 @@ public class User {
     private long id;
     private String name;
     private String email;
+    private String mobileNumber;
     private String passwordHash;
     private Role role;
     private Timestamp createdAt;
@@ -37,6 +38,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     public String getPasswordHash() {

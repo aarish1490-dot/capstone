@@ -23,6 +23,7 @@ public class AppContextListener implements ServletContextListener {
             DbUtil.runScript("db/schema.sql");
             DbUtil.runScript("db/seed.sql");
         }
+        DbUtil.runScript("db/migrations/001_otp_mobile_number.sql");
         ServiceRegistry.init();
         log.info("DhatchinaMart ready");
     }

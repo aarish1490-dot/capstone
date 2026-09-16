@@ -30,10 +30,10 @@ public final class DbUtil {
         if (dataSource != null) {
             return;
         }
-        String url = env("DHAT_DB_URL", DEFAULT_URL);
-        String user = env("DHAT_DB_USER", DEFAULT_USER);
-        String password = env("DHAT_DB_PASSWORD", DEFAULT_PASSWORD);
-        int maxPool = Integer.parseInt(env("DHAT_DB_POOL_MAX", "10"));
+        String url = getEnv("DHAT_DB_URL", DEFAULT_URL);
+        String user = getEnv("DHAT_DB_USER", DEFAULT_USER);
+        String password = getEnv("DHAT_DB_PASSWORD", DEFAULT_PASSWORD);
+        int maxPool = Integer.parseInt(getEnv("DHAT_DB_POOL_MAX", "10"));
 
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(url);
@@ -116,8 +116,11 @@ public final class DbUtil {
         return statements;
     }
 
-    private static String env(String key, String defaultValue) {
+    public static String getEnv(String key, String defaultValue) {
         String value = System.getenv(key);
+        if (value == null || value.isBlank()) {
+            value = EnvFileLoader.get(key);
+        }
         return value == null || value.isBlank() ? defaultValue : value;
     }
 

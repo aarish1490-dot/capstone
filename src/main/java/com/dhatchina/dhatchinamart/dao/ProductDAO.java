@@ -10,6 +10,10 @@ public interface ProductDAO {
 
     long insert(Product product);
 
+    boolean update(Product product);
+
+    boolean delete(long id);
+
     Optional<Product> findById(long id);
 
     List<Product> find(String keyword, String category);

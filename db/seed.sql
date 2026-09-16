@@ -3,10 +3,12 @@
 -- themselves as a Buyer or Seller on the /register page.
 -- Passwords are real bcrypt hashes:
 --   admin@dhatchinamart.com / Admin@123
+-- Demo mobile number for the seeded admin (used for OTP login):
+--   9876500001
 -- Products are owned by the platform admin (id 1) so the catalog is always populated.
 
-INSERT INTO users (id, name, email, password_hash, role) VALUES
-  (1, 'Platform Admin', 'admin@dhatchinamart.com', '$2a$10$i3Xw2lMwEHYovzkspFaqOu/aFUkFU90ANtgkNCdz5z9QKWYHgIlRO', 'ADMIN');
+INSERT INTO users (id, name, email, mobile_number, password_hash, role) VALUES
+  (1, 'Platform Admin', 'admin@dhatchinamart.com', '9876500001', '$2a$10$i3Xw2lMwEHYovzkspFaqOu/aFUkFU90ANtgkNCdz5z9QKWYHgIlRO', 'ADMIN');
 
 -- ==================================================
 -- PRODUCT CATALOG (40 products, 5 categories x 8)
