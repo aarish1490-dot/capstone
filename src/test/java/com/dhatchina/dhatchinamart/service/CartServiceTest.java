@@ -2,6 +2,7 @@ package com.dhatchina.dhatchinamart.service;
 
 import com.dhatchina.dhatchinamart.dao.CartDAO;
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
+import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
 import com.dhatchina.dhatchinamart.model.CartItem;
 import com.dhatchina.dhatchinamart.model.Product;
@@ -78,6 +79,13 @@ class CartServiceTest {
         when(cartDAO.findByUserAndProduct(BUYER_ID, PRODUCT_ID)).thenReturn(Optional.empty());
 
         assertThrows(ValidationException.class, () -> cartService.addToCart(BUYER_ID, PRODUCT_ID, 3));
+    }
+
+    @Test
+    void addToCartForMissingProductThrowsNotFound() {
+        when(productDAO.findById(PRODUCT_ID)).thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> cartService.addToCart(BUYER_ID, PRODUCT_ID, 1));
     }
 
     @Test

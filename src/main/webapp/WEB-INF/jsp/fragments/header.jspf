@@ -20,7 +20,7 @@
             <a href="${ctx}/products">Products</a>
             <c:choose>
                 <c:when test="${sessionScope.user != null}">
-                    <a href="${ctx}/cart">Cart</a>
+                    <a href="${ctx}/cart">Cart<c:if test="${not empty cartCount}"><span class="cart-count"><c:out value="${cartCount}"/></span></c:if></a>
                     <a href="${ctx}/orders">Orders</a>
                     <c:if test="${sessionScope.user.role == 'SELLER'}">
                         <a href="${ctx}/seller">Seller Dashboard</a>

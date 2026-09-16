@@ -5,20 +5,26 @@
 <%@ include file="/WEB-INF/jsp/fragments/header.jspf" %>
 
 <h2 class="page-title">Explore Products</h2>
-<p class="page-subtitle">Search by name, keyword or filter by category</p>
+<p class="page-subtitle">Search by name or keyword, or filter by category</p>
 
 <form class="search-bar" action="${ctx}/products" method="get">
-    <input type="text" name="q" placeholder="Search products..."
-           value="<c:out value='${keyword}'/>">
-    <select name="category">
-        <option value="">All Categories</option>
-        <c:forEach var="cat" items="${categories}">
-            <option value="<c:out value='${cat}'/>"
-                <c:if test="${cat == selectedCategory}">selected</c:if>>
-                <c:out value="${cat}"/>
-            </option>
-        </c:forEach>
-    </select>
+    <div class="search-field">
+        <label class="sr-only" for="search-q">Search products</label>
+        <input type="text" id="search-q" name="q" placeholder="Search products..."
+               value="<c:out value='${keyword}'/>">
+    </div>
+    <div class="search-field">
+        <label class="sr-only" for="search-category">Category</label>
+        <select id="search-category" name="category">
+            <option value="">All Categories</option>
+            <c:forEach var="cat" items="${categories}">
+                <option value="<c:out value='${cat}'/>"
+                    <c:if test="${cat == selectedCategory}">selected</c:if>>
+                    <c:out value="${cat}"/>
+                </option>
+            </c:forEach>
+        </select>
+    </div>
     <button type="submit" class="btn">Search</button>
     <a href="${ctx}/products" class="btn btn-secondary">Reset</a>
 </form>
@@ -30,53 +36,73 @@
 <c:choose>
     <c:when test="${empty products}">
         <div class="empty-state">
-            <h3>No products found</h3>
-            <p>Try a different search term or category.</p>
+            <h3 id="empty-title">Looks like the shelves are taking a nap.</h3>
+            <p>
+                <c:choose>
+                    <c:when test="${not empty keyword || not empty selectedCategory}">
+                        No products matched
+                        <c:if test="${not empty keyword}">“<c:out value="${keyword}"/>”</c:if>
+                        <c:if test="${not empty keyword && not empty selectedCategory}"> in </c:if>
+                        <c:if test="${not empty selectedCategory}"><c:out value="${selectedCategory}"/></c:if>.
+                        Try a different search term or category, or clear your filters.
+                    </c:when>
+                    <c:otherwise>
+                        We couldn't find any products right now. Please check back soon.
+                    </c:otherwise>
+                </c:choose>
+            </p>
+            <a href="${ctx}/products" class="btn">Clear Filters</a>
         </div>
     </c:when>
     <c:otherwise>
+        <c:set var="resultsStart" value="${(page.page - 1) * page.pageSize + 1}"/>
+        <c:set var="resultsEnd" value="${resultsStart + page.products.size() - 1}"/>
+        <div class="results-meta" role="status" aria-live="polite">
+            <span>Showing <c:out value="${resultsStart}"/>&ndash;<c:out value="${resultsEnd}"/> of <c:out value="${page.totalItems}"/> products</span>
+            <c:if test="${not empty keyword}">
+                <span class="filter-chip">Keyword: <c:out value="${keyword}"/></span>
+            </c:if>
+            <c:if test="${not empty selectedCategory}">
+                <span class="filter-chip">Category: <c:out value="${selectedCategory}"/></span>
+            </c:if>
+        </div>
         <div class="grid-products">
             <c:forEach var="p" items="${products}">
-                <div class="card">
-                    <img class="card-img" src="<c:out value='${p.imageUrl}'/>"
-                         alt="<c:out value='${p.name}'/>" loading="lazy"
-                         onerror="this.src='${ctx}/images/placeholder.png'">
-                    <div class="card-body">
-                        <a class="card-title" href="${ctx}/product?id=${p.id}"><c:out value="${p.name}"/></a>
-                        <div class="card-meta">
-                            <span><c:out value="${p.category}"/></span>
-                            <span class="price">₹ <fmt:formatNumber value="${p.price}" type="number" minFractionDigits="2" maxFractionDigits="2"/></span>
-                        </div>
-                        <div class="card-meta">
-                            <span class="<c:choose><c:when test='${p.stockQty == 0}'>stock-out</c:when><c:when test='${p.stockQty < 10}'>stock-low</c:when><c:otherwise>stock-ok</c:otherwise></c:choose>">
-                                <c:choose>
-                                    <c:when test="${p.stockQty == 0}">Out of stock</c:when>
-                                    <c:otherwise>In stock: <c:out value="${p.stockQty}"/></c:otherwise>
-                                </c:choose>
-                            </span>
-                            <span>by <c:out value="${p.sellerName}"/></span>
-                        </div>
-                        <div class="card-actions">
-                            <a class="btn btn-sm" href="${ctx}/product?id=${p.id}">View</a>
-                            <c:choose>
-                                <c:when test="${p.stockQty > 0}">
-                                    <form action="${ctx}/cart" method="post" style="flex:1;">
-                                        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
-                                        <input type="hidden" name="action" value="add">
-                                        <input type="hidden" name="productId" value="${p.id}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-sm" style="width:100%;">Add to Cart</button>
-                                    </form>
-                                </c:when>
-                                <c:otherwise>
-                                    <button class="btn btn-sm" style="width:100%;" disabled>Out of stock</button>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                    </div>
-                </div>
+                <%@ include file="/WEB-INF/jsp/fragments/product-card.jspf" %>
             </c:forEach>
         </div>
+
+        <c:if test="${page.totalPages > 1}">
+            <nav class="pagination" aria-label="Product pages">
+                <c:choose>
+                    <c:when test="${page.hasPrevious}">
+                        <c:url var="prevUrl" value="/products">
+                            <c:param name="q" value="${keyword}"/>
+                            <c:param name="category" value="${selectedCategory}"/>
+                            <c:param name="page" value="${page.page - 1}"/>
+                        </c:url>
+                        <a class="btn btn-secondary btn-sm" href="${prevUrl}" rel="prev">Previous</a>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="btn btn-disabled btn-sm" type="button" disabled>Previous</button>
+                    </c:otherwise>
+                </c:choose>
+                <span class="pagination-info">Page <c:out value="${page.page}"/> of <c:out value="${page.totalPages}"/></span>
+                <c:choose>
+                    <c:when test="${page.hasNext}">
+                        <c:url var="nextUrl" value="/products">
+                            <c:param name="q" value="${keyword}"/>
+                            <c:param name="category" value="${selectedCategory}"/>
+                            <c:param name="page" value="${page.page + 1}"/>
+                        </c:url>
+                        <a class="btn btn-secondary btn-sm" href="${nextUrl}" rel="next">Next</a>
+                    </c:when>
+                    <c:otherwise>
+                        <button class="btn btn-disabled btn-sm" type="button" disabled>Next</button>
+                    </c:otherwise>
+                </c:choose>
+            </nav>
+        </c:if>
     </c:otherwise>
 </c:choose>
 

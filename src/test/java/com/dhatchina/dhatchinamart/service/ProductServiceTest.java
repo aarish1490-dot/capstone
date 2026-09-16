@@ -1,6 +1,7 @@
 package com.dhatchina.dhatchinamart.service;
 
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
+import com.dhatchina.dhatchinamart.dto.ProductPage;
 import com.dhatchina.dhatchinamart.exception.ForbiddenException;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
@@ -12,12 +13,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +68,92 @@ class ProductServiceTest {
 
         assertEquals(1, products.size());
         verify(productDAO).find("head", "Electronics");
+    }
+
+    @Test
+    void pagedBrowseDelegatesToCountAndPagedFind() {
+        when(productDAO.count("head", "Electronics")).thenReturn(20L);
+        when(productDAO.find("head", "Electronics", 12, 0)).thenReturn(List.of(new Product(), new Product()));
+
+        ProductPage page = productService.browse("head", "Electronics", 1, 12);
+
+        assertEquals(2, page.getProducts().size());
+        assertEquals(20L, page.getTotalItems());
+        assertEquals(1, page.getPage());
+        assertEquals(12, page.getPageSize());
+        assertEquals(2, page.getTotalPages());
+        assertFalse(page.isHasPrevious());
+        assertTrue(page.isHasNext());
+    }
+
+    @Test
+    void pagedBrowseNormalizesBlankKeywordToNull() {
+        when(productDAO.count(null, "Electronics")).thenReturn(8L);
+        when(productDAO.find(null, "Electronics", 12, 0)).thenReturn(List.of(new Product()));
+
+        productService.browse("   ", "Electronics", 1, 12);
+
+        verify(productDAO).count(null, "Electronics");
+        verify(productDAO).find(null, "Electronics", 12, 0);
+    }
+
+    @Test
+    void pagedBrowseTrimsKeywordAndCategory() {
+        when(productDAO.count("head", "Home")).thenReturn(1L);
+        when(productDAO.find("head", "Home", 12, 0)).thenReturn(List.of(new Product()));
+
+        productService.browse("  head  ", "  Home ", 1, 12);
+
+        verify(productDAO).count("head", "Home");
+        verify(productDAO).find("head", "Home", 12, 0);
+    }
+
+    @Test
+    void pagedBrowseClampsInvalidPageToFirst() {
+        when(productDAO.count("head", null)).thenReturn(1L);
+        when(productDAO.find("head", null, 12, 0)).thenReturn(List.of(new Product()));
+
+        productService.browse("head", null, 0, 12);
+        productService.browse("head", null, -3, 12);
+
+        verify(productDAO, times(2)).find("head", null, 12, 0);
+    }
+
+    @Test
+    void pagedBrowseClampsOversizedPageSizeToDefault() {
+        when(productDAO.count("head", null)).thenReturn(5L);
+        when(productDAO.find("head", null, 12, 0)).thenReturn(List.of(new Product()));
+
+        productService.browse("head", null, 1, 999);
+
+        verify(productDAO).find("head", null, 12, 0);
+    }
+
+    @Test
+    void pagedBrowseClampsPageBeyondTotalPages() {
+        when(productDAO.count("head", null)).thenReturn(20L);
+        when(productDAO.find("head", null, 12, 12)).thenReturn(List.of(new Product()));
+
+        ProductPage page = productService.browse("head", null, 9, 12);
+
+        assertEquals(2, page.getPage());
+        assertEquals(2, page.getTotalPages());
+        assertFalse(page.isHasNext());
+        verify(productDAO).find("head", null, 12, 12);
+    }
+
+    @Test
+    void pagedBrowseWithNoMatchesReturnsEmptyFirstPage() {
+        when(productDAO.count(null, null)).thenReturn(0L);
+        when(productDAO.find(null, null, 12, 0)).thenReturn(Collections.emptyList());
+
+        ProductPage page = productService.browse(null, null, 1, 12);
+
+        assertTrue(page.getProducts().isEmpty());
+        assertEquals(0L, page.getTotalItems());
+        assertEquals(1, page.getTotalPages());
+        assertFalse(page.isHasPrevious());
+        assertFalse(page.isHasNext());
     }
 
     private Product sampleOwnedProduct(long id, long sellerId) {

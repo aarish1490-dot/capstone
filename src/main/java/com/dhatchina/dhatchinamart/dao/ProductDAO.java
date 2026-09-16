@@ -18,6 +18,10 @@ public interface ProductDAO {
 
     List<Product> find(String keyword, String category);
 
+    List<Product> find(String keyword, String category, int limit, long offset);
+
+    long count(String keyword, String category);
+
     List<String> findCategories();
 
     List<Product> findBySeller(long sellerId);

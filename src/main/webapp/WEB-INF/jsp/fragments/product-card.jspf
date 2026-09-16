@@ -1,0 +1,59 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<article class="card product-card">
+    <a href="${ctx}/product?id=${p.id}" class="card-img-link" aria-hidden="true" tabindex="-1">
+        <img class="card-img"
+             src="<c:out value='${p.imageUrl}'/>"
+             alt="<c:out value='${p.name}'/>"
+             loading="lazy"
+             onerror="this.onerror=null;this.src='<c:url value="/images/placeholder.png"/>'">
+    </a>
+    <div class="card-body">
+        <div class="card-topline">
+            <span class="category-tag"><c:out value="${p.category}"/></span>
+            <span class="stock-pill
+                <c:choose>
+                    <c:when test="${p.stockQty <= 0}">out</c:when>
+                    <c:when test="${p.stockQty < 10}">low</c:when>
+                    <c:otherwise>in</c:otherwise>
+                </c:choose>">
+                <c:choose>
+                    <c:when test="${p.stockQty <= 0}">Out of stock</c:when>
+                    <c:when test="${p.stockQty < 10}">Low stock</c:when>
+                    <c:otherwise>In stock</c:otherwise>
+                </c:choose>
+            </span>
+        </div>
+        <a class="card-title" href="${ctx}/product?id=${p.id}">
+            <c:out value="${p.name}"/>
+        </a>
+        <c:if test="${not empty p.description}">
+            <p class="card-desc"><c:out value="${fn:substring(p.description, 0, 90)}"/><c:if test="${fn:length(p.description) > 90}">&hellip;</c:if></p>
+        </c:if>
+        <span class="card-seller">by <c:out value="${p.sellerName}"/></span>
+        <div class="price">
+            &#8377; <fmt:formatNumber value="${p.price}" type="number" minFractionDigits="2" maxFractionDigits="2"/>
+        </div>
+        <div class="card-actions">
+            <a class="btn btn-secondary btn-sm" href="${ctx}/product?id=${p.id}">View</a>
+            <c:choose>
+                <c:when test="${p.stockQty <= 0}">
+                    <button class="btn btn-disabled btn-sm" type="button" aria-disabled="true" disabled>Out of stock</button>
+                </c:when>
+                <c:when test="${empty sessionScope.user}">
+                    <a class="btn btn-sm" href="${ctx}/login">Login to buy</a>
+                </c:when>
+                <c:otherwise>
+                    <form class="add-to-cart-form" action="${ctx}/cart" method="post" style="flex:1;">
+                        <input type="hidden" name="_csrf" value="${_csrfToken}"/>
+                        <input type="hidden" name="action" value="add"/>
+                        <input type="hidden" name="productId" value="${p.id}"/>
+                        <input type="hidden" name="quantity" value="1"/>
+                        <button type="submit" class="btn btn-sm" style="width:100%;">Add to Cart</button>
+                    </form>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</article>

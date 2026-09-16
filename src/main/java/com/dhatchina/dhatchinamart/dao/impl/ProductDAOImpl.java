@@ -100,10 +100,19 @@ public class ProductDAOImpl implements ProductDAO {
 
     @Override
     public List<Product> find(String keyword, String category) {
-        String sql = "SELECT " + COLUMNS + " FROM products p JOIN users u ON u.id = p.seller_id "
+        return search(keyword, category, -1, 0);
+    }
+
+    @Override
+    public List<Product> find(String keyword, String category, int limit, long offset) {
+        return search(keyword, category, limit, offset);
+    }
+
+    @Override
+    public long count(String keyword, String category) {
+        String sql = "SELECT COUNT(*) FROM products p "
                 + "WHERE (? IS NULL OR LOWER(p.name) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\') "
-                + "AND (? IS NULL OR p.category = ?) "
-                + "ORDER BY p.created_at DESC, p.id DESC";
+                + "AND (? IS NULL OR p.category = ?)";
         String pattern = escapeLike(keyword);
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -112,6 +121,35 @@ public class ProductDAOImpl implements ProductDAO {
             ps.setString(3, pattern == null ? null : "%" + pattern + "%");
             ps.setString(4, category);
             ps.setString(5, category);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getLong(1) : 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to count products", e);
+        }
+    }
+
+    private List<Product> search(String keyword, String category, int limit, long offset) {
+        StringBuilder sql = new StringBuilder("SELECT ").append(COLUMNS)
+                .append(" FROM products p JOIN users u ON u.id = p.seller_id ")
+                .append("WHERE (? IS NULL OR LOWER(p.name) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\') ")
+                .append("AND (? IS NULL OR p.category = ?) ")
+                .append("ORDER BY p.created_at DESC, p.id DESC");
+        if (limit >= 0) {
+            sql.append(" LIMIT ? OFFSET ?");
+        }
+        String pattern = escapeLike(keyword);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setString(1, pattern);
+            ps.setString(2, pattern == null ? null : "%" + pattern + "%");
+            ps.setString(3, pattern == null ? null : "%" + pattern + "%");
+            ps.setString(4, category);
+            ps.setString(5, category);
+            if (limit >= 0) {
+                ps.setInt(6, limit);
+                ps.setLong(7, offset);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 return mapList(rs);
             }

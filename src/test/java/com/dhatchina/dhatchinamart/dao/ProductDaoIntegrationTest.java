@@ -164,4 +164,76 @@ class ProductDaoIntegrationTest {
         assertTrue(admin.get().getPasswordHash().startsWith("$2"), "seed passwords must be bcrypt hashes");
         assertFalse(admin.get().getPasswordHash().contains("Admin@123"), "plaintext must not be stored");
     }
+
+    @Test
+    void pagedFindRespectsLimitAndOffset() {
+        List<Product> first = productDAO.find(null, null, 4, 0);
+        List<Product> second = productDAO.find(null, null, 4, 4);
+
+        assertEquals(4, first.size());
+        assertEquals(4, second.size());
+        List<Long> firstIds = first.stream().map(Product::getId).toList();
+        List<Long> secondIds = second.stream().map(Product::getId).toList();
+        for (int i = 1; i < firstIds.size(); i++) {
+            assertTrue(firstIds.get(i - 1) > firstIds.get(i), "products must be ordered newest first");
+        }
+        assertTrue(secondIds.get(0) < firstIds.get(0), "offset page must come after the first page");
+    }
+
+    @Test
+    void pagedFindCombinedWithFilters() {
+        List<Product> products = productDAO.find("the", "Books", 1, 0);
+
+        assertEquals(1, products.size());
+        String name = products.get(0).getName();
+        assertTrue("The Pragmatic Programmer".equals(name) || "The Psychology of Money".equals(name),
+                "expected one of the two matching books but was: " + name);
+    }
+
+    @Test
+    void pagedFindBeyondEndReturnsEmpty() {
+        assertTrue(productDAO.find(null, null, 4, 1000).isEmpty());
+    }
+
+    @Test
+    void countWithNoFiltersMatchesAllProducts() {
+        assertEquals(40, productDAO.count(null, null));
+    }
+
+    @Test
+    void countWithKeywordFilters() {
+        assertEquals(1, productDAO.count("headphones", null));
+    }
+
+    @Test
+    void countWithCategoryFilters() {
+        assertEquals(8, productDAO.count(null, "Books"));
+    }
+
+    @Test
+    void countWithCombinedFilters() {
+        assertEquals(2, productDAO.count("the", "Books"));
+    }
+
+    @Test
+    void keywordSearchTrimsAndIgnoresCase() {
+        List<Product> products = productDAO.find("  HEADPHONES  ", null);
+
+        assertEquals(1, products.size());
+        assertEquals("Wireless Bluetooth Headphones", products.get(0).getName());
+    }
+
+    @Test
+    void sqlInjectionLikeKeywordCannotAffectTable() {
+        List<Product> products = productDAO.find("'; DROP TABLE products;--", null);
+
+        assertTrue(products.isEmpty());
+        assertEquals(40, productDAO.countAll(), "products table must remain intact");
+    }
+
+    @Test
+    void likeWildcardsAreTreatedAsLiterals() {
+        assertTrue(productDAO.find("%", null).isEmpty(), "a literal percent sign matches nothing");
+        assertTrue(productDAO.find("_", null).isEmpty(), "a literal underscore matches nothing");
+    }
 }

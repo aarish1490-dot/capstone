@@ -21,6 +21,16 @@
             });
         });
 
+        document.querySelectorAll(".add-to-cart-form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                var btn = form.querySelector("button[type=submit]");
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = "Adding...";
+                }
+            });
+        });
+
         function changeQuantity(btn, delta) {
             var row = btn.closest("tr");
             var productId = row.getAttribute("data-product-id");

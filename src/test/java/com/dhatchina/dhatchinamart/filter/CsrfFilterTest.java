@@ -138,6 +138,21 @@ class CsrfFilterTest {
     }
 
     @Test
+    void formPostToCartWithBadCsrfIsRejected() throws Exception {
+        path("/cart", "");
+        when(request.getMethod()).thenReturn("POST");
+        sessionWithToken("abc123");
+        when(request.getParameter(CsrfUtil.FORM_FIELD)).thenReturn("wrong-token");
+        when(request.getRequestDispatcher("/WEB-INF/jsp/error-403.jsp")).thenReturn(dispatcher);
+
+        filter.doFilter(request, response, chain);
+
+        verify(request).setAttribute(eq("error"), anyString());
+        verify(dispatcher).forward(request, response);
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @Test
     void ajaxPostWithBadTokenGetsJson403() throws Exception {
         path("/cart", "");
         when(request.getMethod()).thenReturn("POST");

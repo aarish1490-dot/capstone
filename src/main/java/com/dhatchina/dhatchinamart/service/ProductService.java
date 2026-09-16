@@ -1,6 +1,7 @@
 package com.dhatchina.dhatchinamart.service;
 
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
+import com.dhatchina.dhatchinamart.dto.ProductPage;
 import com.dhatchina.dhatchinamart.exception.ForbiddenException;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
@@ -11,6 +12,8 @@ import java.util.List;
 
 public class ProductService {
 
+    public static final int DEFAULT_PAGE_SIZE = 12;
+    public static final int MAX_PAGE_SIZE = 48;
     private static final int MAX_CATEGORY_LENGTH = 50;
 
     private final ProductDAO productDAO;
@@ -21,6 +24,33 @@ public class ProductService {
 
     public List<Product> browse(String keyword, String category) {
         return productDAO.find(keyword, category);
+    }
+
+    /**
+     * Returns a single page of products matching an optional keyword and
+     * category. Keyword and category are trimmed (blank values become null)
+     * and the requested page is clamped to a valid range.
+     */
+    public ProductPage browse(String keyword, String category, int page, int pageSize) {
+        String normalizedKeyword = normalize(keyword);
+        String normalizedCategory = normalize(category);
+        int safePageSize = pageSize < 1 || pageSize > MAX_PAGE_SIZE ? DEFAULT_PAGE_SIZE : pageSize;
+        int safePage = Math.max(page, 1);
+
+        long totalItems = productDAO.count(normalizedKeyword, normalizedCategory);
+        int totalPages = Math.max(1, (int) Math.ceil((double) totalItems / safePageSize));
+        int clampedPage = Math.min(safePage, totalPages);
+        long offset = (long) (clampedPage - 1) * safePageSize;
+
+        List<Product> products = productDAO.find(normalizedKeyword, normalizedCategory, safePageSize, offset);
+        return new ProductPage(products, totalItems, clampedPage, safePageSize, totalPages);
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 
     public List<String> categories() {

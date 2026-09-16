@@ -1,47 +1,73 @@
 <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<c:set var="ctx" value="${pageContext.request.contextPath}"/>
 <c:set var="title" value="Welcome"/>
 <%@ include file="/WEB-INF/jsp/fragments/header.jspf" %>
 
 <div class="hero">
-    <h1>Everything you need. From sellers you trust.</h1>
-    <p>DhatchinaMart is a multi-seller marketplace where verified sellers list products and buyers shop with
-        confidence. Browse, add to cart, and check out in minutes.</p>
-    <c:choose>
-        <c:when test="${sessionScope.user != null}">
-            <a href="${ctx}/products" class="btn">Start Shopping</a>
-        </c:when>
-        <c:otherwise>
-            <a href="${ctx}/register" class="btn">Create Account</a>
-            <a href="${ctx}/login" class="btn btn-secondary" style="margin-left:10px;color:#fff;border-color:#fff;">Login</a>
-        </c:otherwise>
-    </c:choose>
+    <h1>Discover something worth bringing home.</h1>
+    <p>Browse products from verified sellers, search across the catalogue, and add favourites to your cart in
+        seconds.</p>
+    <form class="hero-search" action="${ctx}/products" method="get">
+        <label class="sr-only" for="hero-q">Search the marketplace</label>
+        <input type="text" id="hero-q" name="q" placeholder="Search the marketplace...">
+        <button type="submit" class="btn">Search</button>
+    </form>
+    <div class="hero-actions">
+        <a href="${ctx}/products" class="btn">Browse all products</a>
+        <c:if test="${empty sessionScope.user}">
+            <a href="${ctx}/register" class="btn btn-secondary">Create Account</a>
+        </c:if>
+    </div>
 </div>
 
 <h2 class="page-title">Shop by category</h2>
 <p class="page-subtitle">Find exactly what you are looking for</p>
 <div class="category-chips">
     <a href="${ctx}/products" class="category-chip">All Products</a>
-    <a href="${ctx}/products?category=Electronics" class="category-chip">Electronics</a>
-    <a href="${ctx}/products?category=Books" class="category-chip">Books</a>
-    <a href="${ctx}/products?category=Clothing" class="category-chip">Clothing</a>
-    <a href="${ctx}/products?category=Accessories" class="category-chip">Accessories</a>
-    <a href="${ctx}/products?category=Home" class="category-chip">Home</a>
+    <c:forEach var="cat" items="${categories}">
+        <c:url var="catUrl" value="/products">
+            <c:param name="category" value="${cat}"/>
+        </c:url>
+        <a href="${catUrl}" class="category-chip"><c:out value="${cat}"/></a>
+    </c:forEach>
 </div>
 
+<c:if test="${not empty error}">
+    <div class="alert alert-error"><c:out value="${error}"/></div>
+</c:if>
+
+<section aria-labelledby="featured-title">
+    <h2 class="page-title" id="featured-title">Fresh on the shelves</h2>
+    <p class="page-subtitle">Recently listed products from our sellers</p>
+    <c:choose>
+        <c:when test="${not empty featuredProducts}">
+            <div class="grid-products">
+                <c:forEach var="p" items="${featuredProducts}">
+                    <%@ include file="/WEB-INF/jsp/fragments/product-card.jspf" %>
+                </c:forEach>
+            </div>
+        </c:when>
+        <c:otherwise>
+            <div class="empty-state">
+                <h3>No products listed yet</h3>
+                <p>Our sellers are stocking the shelves. Please check back soon.</p>
+            </div>
+        </c:otherwise>
+    </c:choose>
+</section>
+
 <div class="stat-grid">
-    <div class="stat-card">
-        <div class="stat-value">5+</div>
-        <div class="stat-label">Product categories</div>
-    </div>
     <div class="stat-card">
         <div class="stat-value">Multi-seller</div>
         <div class="stat-label">Verified sellers list their products</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value">100%</div>
-        <div class="stat-label">Secure checkout &amp; order tracking</div>
+        <div class="stat-value">Search &amp; filter</div>
+        <div class="stat-label">Find exactly what you need, fast</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">Secure</div>
+        <div class="stat-label">Checkout &amp; order tracking</div>
     </div>
 </div>
 

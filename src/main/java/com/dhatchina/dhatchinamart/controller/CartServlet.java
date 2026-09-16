@@ -43,10 +43,10 @@ public class CartServlet extends HttpServlet {
             throws ServletException, IOException {
         User user = SessionUtil.getUser(request);
         String action = request.getParameter("action");
-        long productId = parseProductId(request);
         boolean json = "json".equals(request.getParameter("format"));
 
         try {
+            long productId = parseProductId(request);
             if ("add".equals(action)) {
                 int quantity = ValidationUtil.parseQuantity(request.getParameter("quantity"), "Quantity");
                 ServiceRegistry.getCartService().addToCart(user.getId(), productId, quantity);
