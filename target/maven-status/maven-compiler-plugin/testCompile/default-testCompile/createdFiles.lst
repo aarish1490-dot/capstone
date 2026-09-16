@@ -1,6 +1,0 @@
-com\dhatchina\dhatchinamart\service\ProductServiceTest.class
-com\dhatchina\dhatchinamart\service\AuthServiceTest.class
-com\dhatchina\dhatchinamart\util\TestDb.class
-com\dhatchina\dhatchinamart\service\OrderServiceIntegrationTest.class
-com\dhatchina\dhatchinamart\dao\ProductDaoIntegrationTest.class
-com\dhatchina\dhatchinamart\service\CartServiceTest.class
