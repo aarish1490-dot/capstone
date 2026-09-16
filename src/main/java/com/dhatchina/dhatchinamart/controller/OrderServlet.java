@@ -47,8 +47,8 @@ public class OrderServlet extends HttpServlet {
     private void handleSuccess(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         User user = SessionUtil.getUser(request);
-        long id = parseId(request);
         try {
+            long id = parseId(request);
             Order order = ServiceRegistry.getOrderService().getOrderForBuyer(id, user.getId());
             request.setAttribute("order", order);
             request.getRequestDispatcher("/WEB-INF/jsp/order-success.jsp").forward(request, response);
@@ -60,8 +60,8 @@ public class OrderServlet extends HttpServlet {
     private void handleDetails(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         User user = SessionUtil.getUser(request);
-        long id = parseId(request);
         try {
+            long id = parseId(request);
             OrderService orderService = ServiceRegistry.getOrderService();
             Order order = orderService.getOrderForBuyer(id, user.getId());
             List<OrderItem> items = orderService.itemsForOrder(id);
@@ -71,17 +71,21 @@ public class OrderServlet extends HttpServlet {
         } catch (NotFoundException e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception e) {
-            log.error("Failed to load order {}", id, e);
+            log.error("Failed to load order", e);
             request.setAttribute("error", "Something went wrong. Please try again.");
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
     }
 
-    private long parseId(HttpServletRequest request) throws ServletException {
+    private long parseId(HttpServletRequest request) {
+        String raw = request.getParameter("id");
+        if (raw == null) {
+            throw new NotFoundException("Order not found");
+        }
         try {
-            return Long.parseLong(request.getParameter("id"));
+            return Long.parseLong(raw);
         } catch (NumberFormatException e) {
-            throw new ServletException("Invalid order id");
+            throw new NotFoundException("Order not found");
         }
     }
 }

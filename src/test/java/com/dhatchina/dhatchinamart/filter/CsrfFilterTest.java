@@ -183,6 +183,31 @@ class CsrfFilterTest {
     }
 
     @Test
+    void sellerOrdersGetPassesThrough() throws Exception {
+        path("/seller/orders", "");
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getSession(true)).thenReturn(session);
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+    }
+
+    @Test
+    void sellerOrderStatusPostWithoutTokenIsRejected() throws Exception {
+        path("/seller/orders/status", "");
+        when(request.getMethod()).thenReturn("POST");
+        sessionWithToken("abc123");
+        when(request.getRequestDispatcher("/WEB-INF/jsp/error-403.jsp")).thenReturn(dispatcher);
+
+        filter.doFilter(request, response, chain);
+
+        verify(request).setAttribute(eq("error"), anyString());
+        verify(dispatcher).forward(request, response);
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @Test
     void tokenIsExposedAsRequestAttributeForViews() throws Exception {
         path("/products", "");
         when(request.getMethod()).thenReturn("GET");

@@ -24,6 +24,7 @@
                     <a href="${ctx}/orders">Orders</a>
                     <c:if test="${sessionScope.user.role == 'SELLER'}">
                         <a href="${ctx}/seller">Seller Dashboard</a>
+                        <a href="${ctx}/seller/orders">Orders</a>
                     </c:if>
                     <c:if test="${sessionScope.user.role == 'ADMIN'}">
                         <a href="${ctx}/admin">Admin Dashboard</a>

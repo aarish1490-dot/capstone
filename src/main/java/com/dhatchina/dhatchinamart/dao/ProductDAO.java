@@ -16,6 +16,8 @@ public interface ProductDAO {
 
     Optional<Product> findById(long id);
 
+    Optional<Product> findById(Connection connection, long id);
+
     List<Product> find(String keyword, String category);
 
     List<Product> find(String keyword, String category, int limit, long offset);

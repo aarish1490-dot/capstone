@@ -99,6 +99,22 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
+    public Optional<Product> findById(Connection connection, long id) {
+        String sql = "SELECT " + COLUMNS + " FROM products p JOIN users u ON u.id = p.seller_id WHERE p.id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(map(rs));
+                }
+            }
+            return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find product by id in transaction", e);
+        }
+    }
+
+    @Override
     public List<Product> find(String keyword, String category) {
         return search(keyword, category, -1, 0);
     }

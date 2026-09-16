@@ -91,28 +91,83 @@ public class OrderDAOImpl implements OrderDAO {
 
     @Override
     public List<OrderItem> findItemsByOrderId(long orderId) {
-        String sql = "SELECT oi.id, oi.order_id, oi.product_id, p.name AS product_name, oi.quantity, oi.unit_price, oi.created_at "
+        String sql = "SELECT oi.id, oi.order_id, oi.product_id, p.name AS product_name, "
+                + "p.image_url AS product_image, oi.quantity, oi.unit_price, oi.created_at "
                 + "FROM order_items oi JOIN products p ON p.id = oi.product_id WHERE oi.order_id = ? ORDER BY oi.id";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, orderId);
             try (ResultSet rs = ps.executeQuery()) {
-                List<OrderItem> items = new ArrayList<>();
-                while (rs.next()) {
-                    OrderItem item = new OrderItem();
-                    item.setId(rs.getLong("id"));
-                    item.setOrderId(rs.getLong("order_id"));
-                    item.setProductId(rs.getLong("product_id"));
-                    item.setProductName(rs.getString("product_name"));
-                    item.setQuantity(rs.getInt("quantity"));
-                    item.setUnitPrice(rs.getBigDecimal("unit_price"));
-                    item.setCreatedAt(rs.getTimestamp("created_at"));
-                    items.add(item);
-                }
-                return items;
+                return mapItems(rs);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load order items", e);
+        }
+    }
+
+    @Override
+    public List<Order> findContainingSeller(long sellerId) {
+        String sql = "SELECT DISTINCT o.id, o.buyer_id, u.name AS buyer_name, o.status, o.total_amount, o.created_at "
+                + "FROM orders o "
+                + "JOIN order_items oi ON oi.order_id = o.id "
+                + "JOIN products p ON p.id = oi.product_id "
+                + "JOIN users u ON u.id = o.buyer_id "
+                + "WHERE p.seller_id = ? ORDER BY o.created_at DESC, o.id DESC";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return mapOrders(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load orders containing seller products", e);
+        }
+    }
+
+    @Override
+    public List<OrderItem> findItemsByOrderForSeller(long orderId, long sellerId) {
+        String sql = "SELECT oi.id, oi.order_id, oi.product_id, p.name AS product_name, "
+                + "p.image_url AS product_image, oi.quantity, oi.unit_price, oi.created_at "
+                + "FROM order_items oi JOIN products p ON p.id = oi.product_id "
+                + "WHERE oi.order_id = ? AND p.seller_id = ? ORDER BY oi.id";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, orderId);
+            ps.setLong(2, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return mapItems(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load seller-specific order items", e);
+        }
+    }
+
+    @Override
+    public boolean belongsToSeller(long orderId, long sellerId) {
+        String sql = "SELECT COUNT(*) FROM order_items oi JOIN products p ON p.id = oi.product_id "
+                + "WHERE oi.order_id = ? AND p.seller_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, orderId);
+            ps.setLong(2, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getLong(1) > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to check order seller ownership", e);
+        }
+    }
+
+    @Override
+    public boolean updateStatus(long orderId, String status) {
+        String sql = "UPDATE orders SET status = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setLong(2, orderId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update order status", e);
         }
     }
 
@@ -145,5 +200,22 @@ public class OrderDAOImpl implements OrderDAO {
         order.setTotalAmount(rs.getBigDecimal("total_amount"));
         order.setCreatedAt(rs.getTimestamp("created_at"));
         return order;
+    }
+
+    private List<OrderItem> mapItems(ResultSet rs) throws SQLException {
+        List<OrderItem> items = new ArrayList<>();
+        while (rs.next()) {
+            OrderItem item = new OrderItem();
+            item.setId(rs.getLong("id"));
+            item.setOrderId(rs.getLong("order_id"));
+            item.setProductId(rs.getLong("product_id"));
+            item.setProductName(rs.getString("product_name"));
+            item.setImageUrl(rs.getString("product_image"));
+            item.setQuantity(rs.getInt("quantity"));
+            item.setUnitPrice(rs.getBigDecimal("unit_price"));
+            item.setCreatedAt(rs.getTimestamp("created_at"));
+            items.add(item);
+        }
+        return items;
     }
 }

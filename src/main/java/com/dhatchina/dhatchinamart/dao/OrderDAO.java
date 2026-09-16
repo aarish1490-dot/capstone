@@ -19,5 +19,13 @@ public interface OrderDAO {
 
     List<OrderItem> findItemsByOrderId(long orderId);
 
+    List<Order> findContainingSeller(long sellerId);
+
+    List<OrderItem> findItemsByOrderForSeller(long orderId, long sellerId);
+
+    boolean belongsToSeller(long orderId, long sellerId);
+
+    boolean updateStatus(long orderId, String status);
+
     long countAll();
 }

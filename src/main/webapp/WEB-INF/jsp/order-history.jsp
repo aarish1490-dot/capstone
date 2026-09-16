@@ -33,7 +33,13 @@
                         <td style="font-weight:700;">#<c:out value="${o.id}"/></td>
                         <td><fmt:formatDate value="${o.createdAt}" pattern="dd MMM yyyy, HH:mm"/></td>
                         <td>
-                            <span class="badge <c:choose><c:when test="${o.status == 'DELIVERED'}">badge-delivered</c:when><c:otherwise>badge-pending</c:otherwise></c:choose>">
+                            <span class="badge <c:choose>
+                                <c:when test="${o.status == 'PENDING'}">badge-pending</c:when>
+                                <c:when test="${o.status == 'CONFIRMED'}">badge-confirmed</c:when>
+                                <c:when test="${o.status == 'SHIPPED'}">badge-shipped</c:when>
+                                <c:when test="${o.status == 'DELIVERED'}">badge-delivered</c:when>
+                                <c:otherwise>badge-pending</c:otherwise>
+                            </c:choose>">
                                 <c:out value="${o.status}"/>
                             </span>
                         </td>

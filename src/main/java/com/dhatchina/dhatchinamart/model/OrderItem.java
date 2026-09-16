@@ -9,6 +9,7 @@ public class OrderItem {
     private long orderId;
     private long productId;
     private String productName;
+    private String imageUrl;
     private int quantity;
     private BigDecimal unitPrice;
     private Timestamp createdAt;
@@ -43,6 +44,14 @@ public class OrderItem {
 
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public int getQuantity() {

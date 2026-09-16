@@ -4,11 +4,23 @@
 <c:set var="title" value="Order #${order.id}"/>
 <%@ include file="/WEB-INF/jsp/fragments/header.jspf" %>
 
+<nav class="breadcrumb">
+    <a href="${ctx}/orders">Orders</a> / Order #<c:out value="${order.id}"/>
+</nav>
+
 <h2 class="page-title">Order Details</h2>
 <p class="page-subtitle">
     Order <strong>#<c:out value="${order.id}"/></strong>
     &middot; <fmt:formatDate value="${order.createdAt}" pattern="dd MMM yyyy, HH:mm"/>
-    &middot; Status: <span class="badge badge-pending"><c:out value="${order.status}"/></span>
+    &middot; Status: <span class="badge <c:choose>
+        <c:when test="${order.status == 'PENDING'}">badge-pending</c:when>
+        <c:when test="${order.status == 'CONFIRMED'}">badge-confirmed</c:when>
+        <c:when test="${order.status == 'SHIPPED'}">badge-shipped</c:when>
+        <c:when test="${order.status == 'DELIVERED'}">badge-delivered</c:when>
+        <c:otherwise>badge-pending</c:otherwise>
+    </c:choose>">
+        <c:out value="${order.status}"/>
+    </span>
 </p>
 
 <div class="table-wrap">
@@ -24,10 +36,16 @@
         <tbody>
         <c:forEach var="item" items="${items}">
             <tr>
-                <td><a href="${ctx}/product?id=${item.productId}"><c:out value="${item.productName}"/></a></td>
+                <td class="name-cell">
+                    <c:if test="${not empty item.imageUrl}">
+                        <img class="order-thumb" src="<c:out value='${item.imageUrl}'/>" alt=""
+                             onerror="this.onerror=null;this.src='${ctx}/images/placeholder.png'">
+                    </c:if>
+                    <a href="${ctx}/product?id=${item.productId}"><c:out value="${item.productName}"/></a>
+                </td>
                 <td><c:out value="${item.quantity}"/></td>
                 <td>₹ <fmt:formatNumber value="${item.unitPrice}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
-                <td>₹ <fmt:formatNumber value="${item.subtotal}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                <td>₹ <fmt:formatNumber value="${item.unitPrice * item.quantity}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
             </tr>
         </c:forEach>
         </tbody>
