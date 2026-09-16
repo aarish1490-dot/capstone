@@ -3,6 +3,7 @@ package com.dhatchina.dhatchinamart.service;
 import com.dhatchina.dhatchinamart.dao.CartDAO;
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
 import com.dhatchina.dhatchinamart.dto.CartLine;
+import com.dhatchina.dhatchinamart.dto.CartRow;
 import com.dhatchina.dhatchinamart.dto.CartView;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
@@ -24,6 +25,7 @@ public class CartService {
 
     public void addToCart(long userId, long productId, int quantity) {
         Product product = loadProduct(productId);
+        ensureWithinStock(product, quantity);
         Optional<CartItem> existing = cartDAO.findByUserAndProduct(userId, productId);
         int newQuantity = existing.map(CartItem::getQuantity).orElse(0) + quantity;
         ensureWithinStock(product, newQuantity);
@@ -54,11 +56,33 @@ public class CartService {
         cartDAO.delete(userId, productId);
     }
 
+    /**
+     * Builds the buyer's cart view. Rows whose product no longer exists or
+     * is out of stock are dropped from the cart (and the stale row removed);
+     * quantities exceeding available stock are clamped and persisted. The
+     * cart never exposes quantities that exceed the current stock.
+     */
     public CartView getCart(long userId) {
         CartView view = new CartView();
-        for (CartItem item : cartDAO.findByUserId(userId)) {
-            productDAO.findById(item.getProductId())
-                    .ifPresent(product -> view.addLine(new CartLine(product, item.getQuantity())));
+        for (CartRow row : cartDAO.findRowsByUserId(userId)) {
+            if (!row.isAvailable()) {
+                cartDAO.delete(userId, row.getProductId());
+                view.incrementUnavailable();
+                continue;
+            }
+            Product product = row.getProduct();
+            if (product.getStockQty() <= 0) {
+                cartDAO.delete(userId, row.getProductId());
+                view.incrementUnavailable();
+                continue;
+            }
+            int quantity = row.getQuantity();
+            if (quantity > product.getStockQty()) {
+                cartDAO.updateQuantity(userId, row.getProductId(), product.getStockQty());
+                quantity = product.getStockQty();
+                view.incrementReduced();
+            }
+            view.addLine(new CartLine(product, quantity));
         }
         return view;
     }
@@ -73,9 +97,11 @@ public class CartService {
     }
 
     private void ensureWithinStock(Product product, int quantity) {
+        if (product.getStockQty() <= 0) {
+            throw new ValidationException("\"" + product.getName() + "\" is currently out of stock.");
+        }
         if (product.getStockQty() < quantity) {
-            throw new ValidationException(
-                    "Only " + product.getStockQty() + " unit(s) of \"" + product.getName() + "\" are available in stock");
+            throw new ValidationException("Only " + product.getStockQty() + " of this item are available.");
         }
     }
 }

@@ -1,9 +1,12 @@
 package com.dhatchina.dhatchinamart.dao.impl;
 
 import com.dhatchina.dhatchinamart.dao.CartDAO;
+import com.dhatchina.dhatchinamart.dto.CartRow;
 import com.dhatchina.dhatchinamart.model.CartItem;
+import com.dhatchina.dhatchinamart.model.Product;
 
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -140,6 +143,53 @@ public class CartDAOImpl implements CartDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load cart items", e);
         }
+    }
+
+    @Override
+    public List<CartRow> findRowsByUserId(long userId) {
+        String sql = "SELECT ci.product_id, ci.quantity, "
+                + "p.id AS p_id, p.seller_id AS p_seller_id, u.name AS p_seller_name, "
+                + "p.name AS p_name, p.description AS p_description, p.price AS p_price, "
+                + "p.stock_qty AS p_stock_qty, p.category AS p_category, "
+                + "p.image_url AS p_image_url, p.created_at AS p_created_at "
+                + "FROM cart_items ci "
+                + "LEFT JOIN products p ON p.id = ci.product_id "
+                + "LEFT JOIN users u ON u.id = p.seller_id "
+                + "WHERE ci.user_id = ? ORDER BY ci.created_at, ci.id";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<CartRow> rows = new ArrayList<>();
+                while (rs.next()) {
+                    long productId = rs.getLong("product_id");
+                    int quantity = rs.getInt("quantity");
+                    long pId = rs.getLong("p_id");
+                    rows.add(rs.wasNull()
+                            ? new CartRow(productId, quantity, null)
+                            : new CartRow(productId, quantity, mapProduct(rs)));
+                }
+                return rows;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load cart rows with products", e);
+        }
+    }
+
+    private Product mapProduct(ResultSet rs) throws SQLException {
+        Product product = new Product();
+        product.setId(rs.getLong("p_id"));
+        product.setSellerId(rs.getLong("p_seller_id"));
+        product.setSellerName(rs.getString("p_seller_name"));
+        product.setName(rs.getString("p_name"));
+        product.setDescription(rs.getString("p_description"));
+        BigDecimal price = rs.getBigDecimal("p_price");
+        product.setPrice(price == null ? BigDecimal.ZERO : price);
+        product.setStockQty(rs.getInt("p_stock_qty"));
+        product.setCategory(rs.getString("p_category"));
+        product.setImageUrl(rs.getString("p_image_url"));
+        product.setCreatedAt(rs.getTimestamp("p_created_at"));
+        return product;
     }
 
     private CartItem map(ResultSet rs) throws SQLException {

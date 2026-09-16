@@ -1,5 +1,6 @@
 package com.dhatchina.dhatchinamart.dao;
 
+import com.dhatchina.dhatchinamart.dto.CartRow;
 import com.dhatchina.dhatchinamart.model.CartItem;
 
 import java.sql.Connection;
@@ -23,4 +24,6 @@ public interface CartDAO {
     int countByUser(long userId);
 
     List<CartItem> findByUserId(long userId);
+
+    List<CartRow> findRowsByUserId(long userId);
 }

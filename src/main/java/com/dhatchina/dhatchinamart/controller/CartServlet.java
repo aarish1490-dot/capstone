@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,6 +37,7 @@ public class CartServlet extends HttpServlet {
         User user = SessionUtil.getUser(request);
         CartView cart = ServiceRegistry.getCartService().getCart(user.getId());
         request.setAttribute("cart", cart);
+        request.setAttribute("cartCount", cart.getCount());
         request.getRequestDispatcher("/WEB-INF/jsp/cart.jsp").forward(request, response);
     }
 
@@ -79,7 +82,7 @@ public class CartServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write(gson.toJson(payload));
             } else {
-                response.sendRedirect(request.getContextPath() + "/cart?msg=" + e.getMessage());
+                response.sendRedirect(request.getContextPath() + "/cart?msg=" + urlEncode(e.getMessage()));
             }
         } catch (Exception e) {
             log.error("Cart operation failed", e);
@@ -92,9 +95,13 @@ public class CartServlet extends HttpServlet {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 response.getWriter().write(gson.toJson(payload));
             } else {
-                response.sendRedirect(request.getContextPath() + "/cart?msg=Something went wrong. Please try again.");
+                response.sendRedirect(request.getContextPath() + "/cart?msg=" + urlEncode("Something went wrong. Please try again."));
             }
         }
+    }
+
+    private String urlEncode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
     }
 
     private void writeCartJson(HttpServletRequest request, HttpServletResponse response, User user) throws IOException {

@@ -7,6 +7,8 @@ import java.util.List;
 public class CartView {
 
     private final List<CartLine> lines = new ArrayList<>();
+    private int unavailableRemoved;
+    private int quantityReduced;
 
     public void addLine(CartLine line) {
         lines.add(line);
@@ -28,5 +30,25 @@ public class CartView {
         return lines.stream()
                 .map(CartLine::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void incrementUnavailable() {
+        unavailableRemoved++;
+    }
+
+    public void incrementReduced() {
+        quantityReduced++;
+    }
+
+    public int getUnavailableRemoved() {
+        return unavailableRemoved;
+    }
+
+    public int getQuantityReduced() {
+        return quantityReduced;
+    }
+
+    public boolean isHasWarnings() {
+        return unavailableRemoved > 0 || quantityReduced > 0;
     }
 }
