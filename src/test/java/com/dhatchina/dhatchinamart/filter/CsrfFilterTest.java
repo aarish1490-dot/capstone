@@ -208,6 +208,32 @@ class CsrfFilterTest {
     }
 
     @Test
+    void reviewPostWithoutTokenIsRejected() throws Exception {
+        path("/review", "");
+        when(request.getMethod()).thenReturn("POST");
+        sessionWithToken("abc123");
+        when(request.getRequestDispatcher("/WEB-INF/jsp/error-403.jsp")).thenReturn(dispatcher);
+
+        filter.doFilter(request, response, chain);
+
+        verify(request).setAttribute(eq("error"), anyString());
+        verify(dispatcher).forward(request, response);
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void reviewPostWithValidFormTokenPasses() throws Exception {
+        path("/review", "");
+        when(request.getMethod()).thenReturn("POST");
+        sessionWithToken("xyz789");
+        when(request.getParameter(CsrfUtil.FORM_FIELD)).thenReturn("xyz789");
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+    }
+
+    @Test
     void tokenIsExposedAsRequestAttributeForViews() throws Exception {
         path("/products", "");
         when(request.getMethod()).thenReturn("GET");

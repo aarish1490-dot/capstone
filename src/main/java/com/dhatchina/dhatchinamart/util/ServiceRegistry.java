@@ -4,11 +4,13 @@ import com.dhatchina.dhatchinamart.dao.CartDAO;
 import com.dhatchina.dhatchinamart.dao.OrderDAO;
 import com.dhatchina.dhatchinamart.dao.OtpDAO;
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
+import com.dhatchina.dhatchinamart.dao.ReviewDAO;
 import com.dhatchina.dhatchinamart.dao.UserDAO;
 import com.dhatchina.dhatchinamart.dao.impl.CartDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.OrderDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.OtpDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.ProductDAOImpl;
+import com.dhatchina.dhatchinamart.dao.impl.ReviewDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.UserDAOImpl;
 import com.dhatchina.dhatchinamart.service.AdminService;
 import com.dhatchina.dhatchinamart.service.AuthService;
@@ -17,6 +19,7 @@ import com.dhatchina.dhatchinamart.service.OrderService;
 import com.dhatchina.dhatchinamart.service.OtpService;
 import com.dhatchina.dhatchinamart.service.ProductService;
 import com.dhatchina.dhatchinamart.service.RateLimitService;
+import com.dhatchina.dhatchinamart.service.ReviewService;
 import com.dhatchina.dhatchinamart.service.SellerService;
 import com.dhatchina.dhatchinamart.service.SmsService;
 import com.dhatchina.dhatchinamart.service.sms.SmsProvider;
@@ -34,6 +37,7 @@ public final class ServiceRegistry {
     private static SellerService sellerService;
     private static AdminService adminService;
     private static RateLimitService rateLimitService;
+    private static ReviewService reviewService;
 
     private ServiceRegistry() {
     }
@@ -48,6 +52,7 @@ public final class ServiceRegistry {
         CartDAO cartDAO = new CartDAOImpl(dataSource);
         OrderDAO orderDAO = new OrderDAOImpl(dataSource);
         OtpDAO otpDAO = new OtpDAOImpl(dataSource);
+        ReviewDAO reviewDAO = new ReviewDAOImpl(dataSource);
 
         authService = new AuthService(userDAO);
         otpService = new OtpService(otpDAO, new SmsService(createSmsProvider(),
@@ -58,6 +63,7 @@ public final class ServiceRegistry {
         sellerService = new SellerService(productDAO);
         adminService = new AdminService(userDAO, productDAO, orderDAO);
         rateLimitService = new RateLimitService();
+        reviewService = new ReviewService(reviewDAO, orderDAO, productDAO);
     }
 
     private static SmsProvider createSmsProvider() {
@@ -73,6 +79,7 @@ public final class ServiceRegistry {
         sellerService = null;
         adminService = null;
         rateLimitService = null;
+        reviewService = null;
     }
 
     public static AuthService getAuthService() {
@@ -105,5 +112,9 @@ public final class ServiceRegistry {
 
     public static RateLimitService getRateLimitService() {
         return rateLimitService;
+    }
+
+    public static ReviewService getReviewService() {
+        return reviewService;
     }
 }

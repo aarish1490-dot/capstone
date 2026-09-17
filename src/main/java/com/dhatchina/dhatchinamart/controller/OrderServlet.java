@@ -3,6 +3,7 @@ package com.dhatchina.dhatchinamart.controller;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.model.Order;
 import com.dhatchina.dhatchinamart.model.OrderItem;
+import com.dhatchina.dhatchinamart.model.OrderStatus;
 import com.dhatchina.dhatchinamart.model.User;
 import com.dhatchina.dhatchinamart.service.OrderService;
 import com.dhatchina.dhatchinamart.util.SessionUtil;
@@ -67,6 +68,10 @@ public class OrderServlet extends HttpServlet {
             List<OrderItem> items = orderService.itemsForOrder(id);
             request.setAttribute("order", order);
             request.setAttribute("items", items);
+            if (OrderStatus.DELIVERED.name().equals(order.getStatus())) {
+                request.setAttribute("reviewedProductIds",
+                        ServiceRegistry.getReviewService().reviewedProductIdsForOrder(id));
+            }
             request.getRequestDispatcher("/WEB-INF/jsp/order-details.jsp").forward(request, response);
         } catch (NotFoundException e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

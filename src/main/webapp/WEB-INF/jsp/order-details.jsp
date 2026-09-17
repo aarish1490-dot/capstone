@@ -31,6 +31,7 @@
             <th>Quantity</th>
             <th>Unit Price</th>
             <th>Subtotal</th>
+            <th>Review</th>
         </tr>
         </thead>
         <tbody>
@@ -46,6 +47,19 @@
                 <td><c:out value="${item.quantity}"/></td>
                 <td>₹ <fmt:formatNumber value="${item.unitPrice}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
                 <td>₹ <fmt:formatNumber value="${item.unitPrice * item.quantity}" type="number" minFractionDigits="2" maxFractionDigits="2"/></td>
+                <td>
+                    <c:choose>
+                        <c:when test="${reviewedProductIds.contains(item.productId)}">
+                            <span class="reviewed-label">Reviewed</span>
+                        </c:when>
+                        <c:when test="${order.status == 'DELIVERED'}">
+                            <a class="btn btn-sm btn-secondary" href="${ctx}/product?id=${item.productId}&amp;order=${order.id}">Leave a review</a>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="form-hint">Available after delivery</span>
+                        </c:otherwise>
+                    </c:choose>
+                </td>
             </tr>
         </c:forEach>
         </tbody>

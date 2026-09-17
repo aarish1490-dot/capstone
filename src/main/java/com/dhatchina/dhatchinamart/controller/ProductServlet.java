@@ -71,8 +71,17 @@ public class ProductServlet extends HttpServlet {
         }
         try {
             Product product = ServiceRegistry.getProductService().getById(id);
+            com.dhatchina.dhatchinamart.service.ReviewService reviewService = ServiceRegistry.getReviewService();
             request.setAttribute("product", product);
             request.setAttribute("cartCount", cartCount(request));
+            request.setAttribute("reviews", reviewService.reviewsForProduct(id));
+            request.setAttribute("reviewStats", reviewService.statsForProduct(id));
+            User user = SessionUtil.getUser(request);
+            if (user != null && user.getRole() == User.Role.BUYER) {
+                request.setAttribute("eligibleOrderId", eligibleOrderId(request, reviewService, user, id));
+                request.setAttribute("myReview",
+                        reviewService.findReviewByBuyerAndProduct(user.getId(), id).orElse(null));
+            }
             request.getRequestDispatcher("/WEB-INF/jsp/product-details.jsp").forward(request, response);
         } catch (NotFoundException e) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -81,6 +90,29 @@ public class ProductServlet extends HttpServlet {
             request.setAttribute("error", "Something went wrong. Please try again.");
             request.getRequestDispatcher("/WEB-INF/jsp/error.jsp").forward(request, response);
         }
+    }
+
+    /**
+     * The order to attach the review form to. A buyer coming from the order
+     * details page may pass {@code ?order=O}; that order is only honoured if it
+     * is genuinely eligible (delivered, owned, contains the product, not yet
+     * reviewed). Otherwise the most recent eligible delivered order is used.
+     */
+    private Long eligibleOrderId(HttpServletRequest request,
+                                 com.dhatchina.dhatchinamart.service.ReviewService reviewService,
+                                 User user, long productId) {
+        String orderParam = request.getParameter("order");
+        if (orderParam != null && !orderParam.isBlank()) {
+            try {
+                long orderId = Long.parseLong(orderParam);
+                if (reviewService.isEligibleOrder(user.getId(), orderId, productId)) {
+                    return orderId;
+                }
+            } catch (NumberFormatException ignored) {
+                // fall through to the buyer's default eligible order
+            }
+        }
+        return reviewService.findEligibleOrderId(user.getId(), productId).orElse(null);
     }
 
     private int parsePage(String raw) {

@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebFilter(urlPatterns = {"/cart", "/checkout", "/orders", "/order", "/order-success", "/seller/*", "/admin"})
+@WebFilter(urlPatterns = {"/cart", "/checkout", "/orders", "/order", "/order-success", "/review", "/seller/*", "/admin"})
 public class AuthFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(AuthFilter.class);

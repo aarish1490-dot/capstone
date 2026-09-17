@@ -130,4 +130,36 @@ class AuthFilterTest {
 
         verify(chain).doFilter(request, response);
     }
+
+    @Test
+    void anonymousReviewIsRedirectedToLogin() throws Exception {
+        when(request.getSession(false)).thenReturn(null);
+        when(request.getContextPath()).thenReturn("");
+        when(request.getRequestURI()).thenReturn("/review");
+
+        filter.doFilter(request, response, chain);
+
+        verify(response).sendRedirect("/login");
+        verify(chain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void authenticatedBuyerCanReachReviewEndpoint() throws Exception {
+        sessionUser(user(User.Role.BUYER));
+        path("/review", "");
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+    }
+
+    @Test
+    void authenticatedSellerCanReachReviewEndpoint() throws Exception {
+        sessionUser(user(User.Role.SELLER));
+        path("/review", "");
+
+        filter.doFilter(request, response, chain);
+
+        verify(chain).doFilter(request, response);
+    }
 }

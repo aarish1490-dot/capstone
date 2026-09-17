@@ -4,6 +4,7 @@ import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.model.Order;
 import com.dhatchina.dhatchinamart.model.User;
 import com.dhatchina.dhatchinamart.service.OrderService;
+import com.dhatchina.dhatchinamart.service.ReviewService;
 import com.dhatchina.dhatchinamart.util.ServiceRegistry;
 import com.dhatchina.dhatchinamart.util.SessionUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +21,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -49,6 +51,9 @@ class OrderServletTest {
     @Mock
     private OrderService orderService;
 
+    @Mock
+    private ReviewService reviewService;
+
     private MockedStatic<ServiceRegistry> serviceRegistryMock;
     private MockedStatic<SessionUtil> sessionUtilMock;
     private OrderServlet servlet;
@@ -58,6 +63,7 @@ class OrderServletTest {
         serviceRegistryMock = org.mockito.Mockito.mockStatic(ServiceRegistry.class);
         sessionUtilMock = org.mockito.Mockito.mockStatic(SessionUtil.class);
         serviceRegistryMock.when(ServiceRegistry::getOrderService).thenReturn(orderService);
+        serviceRegistryMock.when(ServiceRegistry::getReviewService).thenReturn(reviewService);
         User buyer = new User();
         buyer.setId(BUYER_ID);
         buyer.setRole(User.Role.BUYER);
@@ -104,6 +110,38 @@ class OrderServletTest {
 
         verify(request).setAttribute("order", order);
         verify(request).setAttribute(eq("items"), anyList());
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void deliveredOrderDetailsSetsReviewedProductIds() throws Exception {
+        when(request.getServletPath()).thenReturn("/order");
+        when(request.getParameter("id")).thenReturn("5");
+        Order order = order(5L);
+        order.setStatus("DELIVERED");
+        when(orderService.getOrderForBuyer(5L, BUYER_ID)).thenReturn(order);
+        when(orderService.itemsForOrder(5L)).thenReturn(List.of());
+        when(reviewService.reviewedProductIdsForOrder(5L)).thenReturn(Set.of(3L, 4L));
+
+        servlet.doGet(request, response);
+
+        verify(request).setAttribute("reviewedProductIds", Set.of(3L, 4L));
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void ordersNotYetDeliveredSkipReviewedProductIds() throws Exception {
+        when(request.getServletPath()).thenReturn("/order");
+        when(request.getParameter("id")).thenReturn("5");
+        Order order = order(5L);
+        order.setStatus("SHIPPED");
+        when(orderService.getOrderForBuyer(5L, BUYER_ID)).thenReturn(order);
+        when(orderService.itemsForOrder(5L)).thenReturn(List.of());
+
+        servlet.doGet(request, response);
+
+        verify(reviewService, never()).reviewedProductIdsForOrder(5L);
+        verify(request, never()).setAttribute(eq("reviewedProductIds"), any());
         verify(dispatcher).forward(request, response);
     }
 
