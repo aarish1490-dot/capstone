@@ -74,6 +74,7 @@ class AdminServletTest {
 
     @Test
     void doGetLoadsListsAndForwardsToAdminDashboard() throws Exception {
+        sessionUtilMock.when(() -> SessionUtil.getUser(request)).thenReturn(adminUser);
         when(adminService.getDashboardStats()).thenReturn(new AdminStats());
         when(adminService.users()).thenReturn(Collections.emptyList());
         when(adminService.orders()).thenReturn(Collections.emptyList());

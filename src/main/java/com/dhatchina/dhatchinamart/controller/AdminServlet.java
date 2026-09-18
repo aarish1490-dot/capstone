@@ -34,6 +34,11 @@ public class AdminServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        User current = SessionUtil.getUser(request);
+        if (current == null || current.getRole() != User.Role.ADMIN) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         try {
             AdminService adminService = ServiceRegistry.getAdminService();
             AdminStats stats = adminService.getDashboardStats();

@@ -35,6 +35,11 @@ public class SellerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        User user = SessionUtil.getUser(request);
+        if (user == null || user.getRole() != User.Role.SELLER) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/seller/product/create":
@@ -54,6 +59,11 @@ public class SellerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        User user = SessionUtil.getUser(request);
+        if (user == null || user.getRole() != User.Role.SELLER) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/seller/product/create":
