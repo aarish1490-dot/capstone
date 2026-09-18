@@ -3,6 +3,7 @@ package com.dhatchina.dhatchinamart.dao;
 import com.dhatchina.dhatchinamart.dao.impl.OrderDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.ProductDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.UserDAOImpl;
+import com.dhatchina.dhatchinamart.dto.SellerStats;
 import com.dhatchina.dhatchinamart.model.Order;
 import com.dhatchina.dhatchinamart.model.OrderItem;
 import com.dhatchina.dhatchinamart.model.Product;
@@ -185,5 +186,52 @@ class OrderDaoIntegrationTest {
 
         assertEquals(1, history.size());
         assertEquals(orderForA, history.get(0).getId());
+    }
+
+    @Test
+    void findAllReturnsOrdersFromAllBuyers() throws Exception {
+        long orderForA = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
+        long orderForB = insertOrder(buyerB, List.of(item(2L, "Keyboard", new BigDecimal("2299.00"), 2)));
+
+        List<Order> all = orderDAO.findAll();
+
+        assertEquals(2, all.size());
+        assertTrue(all.stream().anyMatch(o -> o.getId() == orderForA && "Buyer A".equals(o.getBuyerName())));
+        assertTrue(all.stream().anyMatch(o -> o.getId() == orderForB && "Buyer B".equals(o.getBuyerName())));
+    }
+
+    @Test
+    void findSellerSalesAggregatesOrderCountUnitsAndRevenue() throws Exception {
+        long sellerProduct = createProduct(sellerA, "Seller A Product", new BigDecimal("250.00"));
+        insertOrder(buyerA, List.of(item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 2)));
+        insertOrder(buyerB, List.of(item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 1)));
+
+        SellerStats stats = orderDAO.findSellerSales(sellerA);
+
+        assertEquals(2, stats.getOrderCount(), "one order per checkout");
+        assertEquals(3, stats.getUnitsSold());
+        assertEquals(new BigDecimal("750.00"), stats.getRevenue());
+    }
+
+    @Test
+    void findSellerSalesIgnoresOtherSellersAndSeededProducts() throws Exception {
+        long sellerProduct = createProduct(sellerA, "Seller A Product", new BigDecimal("250.00"));
+        insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1),
+                item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 3)));
+
+        SellerStats stats = orderDAO.findSellerSales(sellerA);
+
+        assertEquals(1, stats.getOrderCount());
+        assertEquals(3, stats.getUnitsSold(), "only the seller's own lines count, not the seeded product");
+        assertEquals(new BigDecimal("750.00"), stats.getRevenue());
+    }
+
+    @Test
+    void findSellerSalesForSellerWithNoOrdersReturnsZeros() {
+        SellerStats stats = orderDAO.findSellerSales(sellerB);
+
+        assertEquals(0, stats.getOrderCount());
+        assertEquals(0, stats.getUnitsSold());
+        assertEquals(BigDecimal.ZERO, stats.getRevenue());
     }
 }

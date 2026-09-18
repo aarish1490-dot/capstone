@@ -4,7 +4,13 @@ import com.dhatchina.dhatchinamart.dao.OrderDAO;
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
 import com.dhatchina.dhatchinamart.dao.UserDAO;
 import com.dhatchina.dhatchinamart.dto.AdminStats;
+import com.dhatchina.dhatchinamart.exception.NotFoundException;
+import com.dhatchina.dhatchinamart.exception.ValidationException;
+import com.dhatchina.dhatchinamart.model.Order;
+import com.dhatchina.dhatchinamart.model.Product;
 import com.dhatchina.dhatchinamart.model.User;
+
+import java.util.List;
 
 public class AdminService {
 
@@ -26,5 +32,46 @@ public class AdminService {
         stats.setTotalProducts(productDAO.countAll());
         stats.setTotalOrders(orderDAO.countAll());
         return stats;
+    }
+
+    public List<User> users() {
+        return userDAO.findAll();
+    }
+
+    public List<Order> orders() {
+        return orderDAO.findAll();
+    }
+
+    public List<Product> products() {
+        return productDAO.findAll();
+    }
+
+    /**
+     * Activates or deactivates a user account. Admin accounts can never be
+     * deactivated (from anywhere) so the platform always has at least one
+     * administrator who can undo a deactivation.
+     */
+    public void setUserActive(long userId, boolean active) {
+        User user = userDAO.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (user.getRole() == User.Role.ADMIN) {
+            throw new ValidationException("Admin accounts cannot be deactivated");
+        }
+        if (!userDAO.updateActive(userId, active)) {
+            throw new NotFoundException("User not found");
+        }
+    }
+
+    /**
+     * Lists or unlists a product in the marketplace. Sellers and the admin
+     * can still load it.
+     */
+    public void setProductActive(long productId, boolean active) {
+        if (productDAO.findById(productId).isEmpty()) {
+            throw new NotFoundException("Product not found");
+        }
+        if (!productDAO.updateActive(productId, active)) {
+            throw new NotFoundException("Product not found");
+        }
     }
 }

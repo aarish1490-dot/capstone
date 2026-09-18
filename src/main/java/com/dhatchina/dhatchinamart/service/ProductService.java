@@ -57,8 +57,13 @@ public class ProductService {
         return productDAO.findCategories();
     }
 
+    /**
+     * Loads a product for buyers. Out-of-stock and deactivated products are
+     * hidden from the marketplace and treated as not found here.
+     */
     public Product getById(long id) {
         return productDAO.findById(id)
+                .filter(product -> product.getStockQty() > 0 && product.isActive())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
     }
 
@@ -76,7 +81,8 @@ public class ProductService {
      * never from a browser-supplied value.
      */
     public Product getOwnedProduct(long sellerId, long productId) {
-        Product product = getById(productId);
+        Product product = productDAO.findById(productId)
+                .orElseThrow(() -> new NotFoundException("Product not found"));
         if (product.getSellerId() != sellerId) {
             throw new ForbiddenException("You do not have permission to manage this product");
         }

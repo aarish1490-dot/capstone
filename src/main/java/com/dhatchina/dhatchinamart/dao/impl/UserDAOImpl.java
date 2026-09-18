@@ -10,9 +10,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserDAOImpl implements UserDAO {
+
+    private static final String COLUMNS =
+            "id, name, email, mobile_number, password_hash, role, is_active, created_at";
 
     private final DataSource dataSource;
 
@@ -22,7 +27,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE email = ?";
+        String sql = "SELECT " + COLUMNS + " FROM users WHERE email = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -39,7 +44,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByMobileNumber(String mobileNumber) {
-        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE mobile_number = ?";
+        String sql = "SELECT " + COLUMNS + " FROM users WHERE mobile_number = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mobileNumber);
@@ -56,7 +61,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findById(long id) {
-        String sql = "SELECT id, name, email, mobile_number, password_hash, role, created_at FROM users WHERE id = ?";
+        String sql = "SELECT " + COLUMNS + " FROM users WHERE id = ?";
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, id);
@@ -68,6 +73,22 @@ public class UserDAOImpl implements UserDAO {
             return Optional.empty();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find user by id", e);
+        }
+    }
+
+    @Override
+    public List<User> findAll() {
+        String sql = "SELECT " + COLUMNS + " FROM users ORDER BY created_at DESC, id DESC";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<User> users = new ArrayList<>();
+            while (rs.next()) {
+                users.add(map(rs));
+            }
+            return users;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load all users", e);
         }
     }
 
@@ -90,6 +111,19 @@ public class UserDAOImpl implements UserDAO {
             throw new SQLException("No generated key returned for user insert");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to insert user", e);
+        }
+    }
+
+    @Override
+    public boolean updateActive(long id, boolean active) {
+        String sql = "UPDATE users SET is_active = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, active);
+            ps.setLong(2, id);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update user active flag", e);
         }
     }
 
@@ -128,6 +162,7 @@ public class UserDAOImpl implements UserDAO {
         user.setPasswordHash(rs.getString("password_hash"));
         String role = rs.getString("role");
         user.setRole(role == null ? null : User.Role.valueOf(role));
+        user.setActive(rs.getBoolean("is_active"));
         user.setCreatedAt(rs.getTimestamp("created_at"));
         return user;
     }

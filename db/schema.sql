@@ -15,6 +15,7 @@ CREATE TABLE users (
     mobile_number VARCHAR(10)   NOT NULL UNIQUE,
     password_hash VARCHAR(255)  NOT NULL,
     role          VARCHAR(20)   NOT NULL,
+    is_active     BOOLEAN       NOT NULL DEFAULT TRUE,
     created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -40,6 +41,7 @@ CREATE TABLE products (
     price       DECIMAL(10,2)  NOT NULL,
     stock_qty   INT            NOT NULL DEFAULT 0,
     category    VARCHAR(50)    NOT NULL,
+    is_active   BOOLEAN        NOT NULL DEFAULT TRUE,
     image_url   VARCHAR(500),
     created_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_products_seller FOREIGN KEY (seller_id) REFERENCES users (id)

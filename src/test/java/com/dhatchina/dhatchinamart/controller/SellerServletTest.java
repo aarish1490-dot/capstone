@@ -1,10 +1,12 @@
 package com.dhatchina.dhatchinamart.controller;
 
+import com.dhatchina.dhatchinamart.dto.SellerStats;
 import com.dhatchina.dhatchinamart.exception.ForbiddenException;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
 import com.dhatchina.dhatchinamart.model.Product;
 import com.dhatchina.dhatchinamart.model.User;
+import com.dhatchina.dhatchinamart.service.OrderService;
 import com.dhatchina.dhatchinamart.service.ProductService;
 import com.dhatchina.dhatchinamart.service.SellerService;
 import com.dhatchina.dhatchinamart.util.ServiceRegistry;
@@ -49,6 +51,9 @@ class SellerServletTest {
     @Mock
     private ProductService productService;
 
+    @Mock
+    private OrderService orderService;
+
     private MockedStatic<ServiceRegistry> serviceRegistryMock;
     private MockedStatic<SessionUtil> sessionUtilMock;
     private SellerServlet servlet;
@@ -61,6 +66,7 @@ class SellerServletTest {
         sessionUtilMock = org.mockito.Mockito.mockStatic(SessionUtil.class);
         serviceRegistryMock.when(ServiceRegistry::getSellerService).thenReturn(sellerService);
         serviceRegistryMock.when(ServiceRegistry::getProductService).thenReturn(productService);
+        serviceRegistryMock.when(ServiceRegistry::getOrderService).thenReturn(orderService);
         sessionUtilMock.when(() -> SessionUtil.getUser(request)).thenReturn(sellerUser);
         servlet = new SellerServlet();
     }
@@ -101,12 +107,14 @@ class SellerServletTest {
     void doGetDashboardForwardsToSellerDashboard() throws Exception {
         stubRoute("/seller");
         when(sellerService.productsForSeller(10L)).thenReturn(Collections.emptyList());
+        when(orderService.salesStats(10L)).thenReturn(new SellerStats());
         when(request.getRequestDispatcher("/WEB-INF/jsp/seller-dashboard.jsp")).thenReturn(dispatcher);
 
         servlet.doGet(request, response);
 
         verify(request).setAttribute(eq("products"), any());
         verify(request).setAttribute(eq("productCount"), eq(0));
+        verify(request).setAttribute(eq("sales"), any());
         verify(dispatcher).forward(request, response);
     }
 

@@ -17,7 +17,7 @@ import java.util.Optional;
 public class ProductDAOImpl implements ProductDAO {
 
     private static final String COLUMNS =
-            "p.id, p.seller_id, u.name AS seller_name, p.name, p.description, p.price, p.stock_qty, p.category, p.image_url, p.created_at";
+            "p.id, p.seller_id, u.name AS seller_name, p.name, p.description, p.price, p.stock_qty, p.category, p.image_url, p.is_active, p.created_at";
 
     private final DataSource dataSource;
 
@@ -125,10 +125,25 @@ public class ProductDAOImpl implements ProductDAO {
     }
 
     @Override
+    public List<Product> findAll() {
+        String sql = "SELECT " + COLUMNS + " FROM products p JOIN users u ON u.id = p.seller_id "
+                + "ORDER BY p.created_at DESC, p.id DESC";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return mapList(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load all products", e);
+        }
+    }
+
+    @Override
     public long count(String keyword, String category) {
         String sql = "SELECT COUNT(*) FROM products p "
                 + "WHERE (? IS NULL OR LOWER(p.name) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\') "
-                + "AND (? IS NULL OR p.category = ?)";
+                + "AND (? IS NULL OR p.category = ?) "
+                + "AND p.stock_qty > 0 "
+                + "AND p.is_active = TRUE";
         String pattern = escapeLike(keyword);
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -150,6 +165,8 @@ public class ProductDAOImpl implements ProductDAO {
                 .append(" FROM products p JOIN users u ON u.id = p.seller_id ")
                 .append("WHERE (? IS NULL OR LOWER(p.name) LIKE ? ESCAPE '\\' OR LOWER(p.description) LIKE ? ESCAPE '\\') ")
                 .append("AND (? IS NULL OR p.category = ?) ")
+                .append("AND p.stock_qty > 0 ")
+                .append("AND p.is_active = TRUE ")
                 .append("ORDER BY p.created_at DESC, p.id DESC");
         if (limit >= 0) {
             sql.append(" LIMIT ? OFFSET ?");
@@ -202,6 +219,19 @@ public class ProductDAOImpl implements ProductDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to find products by seller", e);
+        }
+    }
+
+    @Override
+    public boolean updateActive(long id, boolean active) {
+        String sql = "UPDATE products SET is_active = ? WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, active);
+            ps.setLong(2, id);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update product active flag", e);
         }
     }
 
@@ -262,6 +292,7 @@ public class ProductDAOImpl implements ProductDAO {
         product.setPrice(rs.getBigDecimal("price"));
         product.setStockQty(rs.getInt("stock_qty"));
         product.setCategory(rs.getString("category"));
+        product.setActive(rs.getBoolean("is_active"));
         product.setImageUrl(rs.getString("image_url"));
         product.setCreatedAt(rs.getTimestamp("created_at"));
         return product;

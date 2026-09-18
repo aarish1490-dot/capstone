@@ -76,6 +76,28 @@ class AuthServiceTest {
     }
 
     @Test
+    void loginRejectedForDeactivatedUser() {
+        User user = buyerUser();
+        user.setActive(false);
+        when(userDAO.findByEmail("buyer@dhatchinamart.com")).thenReturn(Optional.of(user));
+
+        ValidationException ex = assertThrows(ValidationException.class,
+                () -> authService.login("buyer@dhatchinamart.com", "Buyer@123"));
+        assertEquals("Your account has been deactivated", ex.getMessage());
+    }
+
+    @Test
+    void findUserByMobileNumberRejectedForDeactivatedUser() {
+        User user = buyerUser();
+        user.setActive(false);
+        when(userDAO.findByMobileNumber("9876543210")).thenReturn(Optional.of(user));
+
+        ValidationException ex = assertThrows(ValidationException.class,
+                () -> authService.findUserByMobileNumber("9876543210"));
+        assertEquals("Your account has been deactivated. Contact support.", ex.getMessage());
+    }
+
+    @Test
     void registerWithDuplicateEmailThrows() {
         when(userDAO.findByEmail("buyer@dhatchinamart.com")).thenReturn(Optional.of(buyerUser()));
 

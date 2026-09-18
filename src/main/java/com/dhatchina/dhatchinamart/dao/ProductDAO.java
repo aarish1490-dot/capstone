@@ -22,11 +22,15 @@ public interface ProductDAO {
 
     List<Product> find(String keyword, String category, int limit, long offset);
 
+    List<Product> findAll();
+
     long count(String keyword, String category);
 
     List<String> findCategories();
 
     List<Product> findBySeller(long sellerId);
+
+    boolean updateActive(long id, boolean active);
 
     long countAll();
 

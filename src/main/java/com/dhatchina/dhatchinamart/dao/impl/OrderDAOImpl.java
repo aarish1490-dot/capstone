@@ -1,6 +1,7 @@
 package com.dhatchina.dhatchinamart.dao.impl;
 
 import com.dhatchina.dhatchinamart.dao.OrderDAO;
+import com.dhatchina.dhatchinamart.dto.SellerStats;
 import com.dhatchina.dhatchinamart.model.Order;
 import com.dhatchina.dhatchinamart.model.OrderItem;
 
@@ -68,6 +69,20 @@ public class OrderDAOImpl implements OrderDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to load orders for buyer", e);
+        }
+    }
+
+    @Override
+    public List<Order> findAll() {
+        String sql = "SELECT o.id, o.buyer_id, u.name AS buyer_name, o.status, o.total_amount, o.created_at "
+                + "FROM orders o JOIN users u ON u.id = o.buyer_id "
+                + "ORDER BY o.created_at DESC, o.id DESC";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            return mapOrders(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load all orders", e);
         }
     }
 
@@ -168,6 +183,32 @@ public class OrderDAOImpl implements OrderDAO {
             return ps.executeUpdate() == 1;
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update order status", e);
+        }
+    }
+
+    @Override
+    public SellerStats findSellerSales(long sellerId) {
+        String sql = "SELECT COUNT(DISTINCT o.id) AS order_count, "
+                + "COALESCE(SUM(oi.quantity), 0) AS units_sold, "
+                + "COALESCE(SUM(oi.quantity * oi.unit_price), 0) AS revenue "
+                + "FROM orders o "
+                + "JOIN order_items oi ON oi.order_id = o.id "
+                + "JOIN products p ON p.id = oi.product_id "
+                + "WHERE p.seller_id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, sellerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                SellerStats stats = new SellerStats();
+                if (rs.next()) {
+                    stats.setOrderCount(rs.getLong("order_count"));
+                    stats.setUnitsSold(rs.getLong("units_sold"));
+                    stats.setRevenue(rs.getBigDecimal("revenue"));
+                }
+                return stats;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load seller sales", e);
         }
     }
 

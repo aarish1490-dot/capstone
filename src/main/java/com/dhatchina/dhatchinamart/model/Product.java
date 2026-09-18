@@ -13,6 +13,7 @@ public class Product {
     private BigDecimal price;
     private int stockQty;
     private String category;
+    private boolean isActive = true;
     private String imageUrl;
     private Timestamp createdAt;
 
@@ -78,6 +79,14 @@ public class Product {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public String getImageUrl() {

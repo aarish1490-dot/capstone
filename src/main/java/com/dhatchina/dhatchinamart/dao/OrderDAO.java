@@ -1,5 +1,6 @@
 package com.dhatchina.dhatchinamart.dao;
 
+import com.dhatchina.dhatchinamart.dto.SellerStats;
 import com.dhatchina.dhatchinamart.model.Order;
 import com.dhatchina.dhatchinamart.model.OrderItem;
 
@@ -15,6 +16,8 @@ public interface OrderDAO {
 
     List<Order> findByBuyer(long buyerId);
 
+    List<Order> findAll();
+
     Optional<Order> findById(long id);
 
     List<OrderItem> findItemsByOrderId(long orderId);
@@ -26,6 +29,8 @@ public interface OrderDAO {
     boolean belongsToSeller(long orderId, long sellerId);
 
     boolean updateStatus(long orderId, String status);
+
+    SellerStats findSellerSales(long sellerId);
 
     long countAll();
 }

@@ -14,6 +14,7 @@ public class User {
     private String mobileNumber;
     private String passwordHash;
     private Role role;
+    private boolean isActive = true;
     private Timestamp createdAt;
 
     public long getId() {
@@ -62,6 +63,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public Timestamp getCreatedAt() {

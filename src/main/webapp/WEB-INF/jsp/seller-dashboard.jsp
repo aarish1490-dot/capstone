@@ -25,6 +25,23 @@
     <div class="alert alert-error">The product could not be deleted. It may be part of an existing order.</div>
 </c:if>
 
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value"><c:out value="${sales.orderCount}"/></div>
+        <div class="stat-label">Orders Received</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value"><c:out value="${sales.unitsSold}"/></div>
+        <div class="stat-label">Units Sold</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">₹
+            <fmt:formatNumber value="${sales.revenue}" type="number" minFractionDigits="2" maxFractionDigits="2"/>
+        </div>
+        <div class="stat-label">Revenue</div>
+    </div>
+</div>
+
 <div class="dashboard-section">
     <h3>Your Products</h3>
     <p class="section-note">

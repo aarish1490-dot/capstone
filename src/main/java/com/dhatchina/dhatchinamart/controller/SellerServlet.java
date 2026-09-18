@@ -77,6 +77,7 @@ public class SellerServlet extends HttpServlet {
         List<Product> products = sellerService.productsForSeller(user.getId());
         request.setAttribute("products", products);
         request.setAttribute("productCount", products.size());
+        request.setAttribute("sales", ServiceRegistry.getOrderService().salesStats(user.getId()));
         request.getRequestDispatcher("/WEB-INF/jsp/seller-dashboard.jsp").forward(request, response);
     }
 

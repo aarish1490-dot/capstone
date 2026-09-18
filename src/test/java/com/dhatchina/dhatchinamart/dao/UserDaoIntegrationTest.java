@@ -8,9 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,5 +76,33 @@ class UserDaoIntegrationTest {
 
         assertThrows(RuntimeException.class,
                 () -> userDAO.insert(newUser("dup@dhatchinamart.com", "9876500005")));
+    }
+
+    @Test
+    void findAllReturnsSeededAndInsertedUsers() {
+        long id = userDAO.insert(newUser("listed@dhatchinamart.com", "9876500006"));
+
+        List<User> users = userDAO.findAll();
+
+        assertTrue(users.stream().anyMatch(u -> u.getId() == id));
+        assertTrue(users.stream().anyMatch(u -> u.getEmail().equals("admin@dhatchinamart.com")));
+        assertTrue(users.stream().allMatch(u -> u.isActive()), "freshly inserted users are active by default");
+    }
+
+    @Test
+    void updateActivePersistsAndResets() {
+        long id = userDAO.insert(newUser("toggle@dhatchinamart.com", "9876500007"));
+
+        assertTrue(userDAO.updateActive(id, false));
+        assertFalse(userDAO.findById(id).orElseThrow().isActive());
+        assertTrue(userDAO.findById(id).orElseThrow().getEmail().equals("toggle@dhatchinamart.com"));
+
+        assertTrue(userDAO.updateActive(id, true));
+        assertTrue(userDAO.findById(id).orElseThrow().isActive());
+    }
+
+    @Test
+    void updateActiveMissingUserReturnsFalse() {
+        assertFalse(userDAO.updateActive(999_999L, false));
     }
 }

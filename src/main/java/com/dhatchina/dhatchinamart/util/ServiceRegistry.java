@@ -13,6 +13,7 @@ import com.dhatchina.dhatchinamart.dao.impl.ProductDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.ReviewDAOImpl;
 import com.dhatchina.dhatchinamart.dao.impl.UserDAOImpl;
 import com.dhatchina.dhatchinamart.service.AdminService;
+import com.dhatchina.dhatchinamart.service.AiService;
 import com.dhatchina.dhatchinamart.service.AuthService;
 import com.dhatchina.dhatchinamart.service.CartService;
 import com.dhatchina.dhatchinamart.service.OrderService;
@@ -22,6 +23,8 @@ import com.dhatchina.dhatchinamart.service.RateLimitService;
 import com.dhatchina.dhatchinamart.service.ReviewService;
 import com.dhatchina.dhatchinamart.service.SellerService;
 import com.dhatchina.dhatchinamart.service.SmsService;
+import com.dhatchina.dhatchinamart.service.ai.AiProvider;
+import com.dhatchina.dhatchinamart.service.ai.AiProviderFactory;
 import com.dhatchina.dhatchinamart.service.sms.SmsProvider;
 import com.dhatchina.dhatchinamart.service.sms.SmsProviderFactory;
 
@@ -38,6 +41,7 @@ public final class ServiceRegistry {
     private static AdminService adminService;
     private static RateLimitService rateLimitService;
     private static ReviewService reviewService;
+    private static AiService aiService;
 
     private ServiceRegistry() {
     }
@@ -64,10 +68,15 @@ public final class ServiceRegistry {
         adminService = new AdminService(userDAO, productDAO, orderDAO);
         rateLimitService = new RateLimitService();
         reviewService = new ReviewService(reviewDAO, orderDAO, productDAO);
+        aiService = new AiService(createAiProvider(), productService, reviewService);
     }
 
     private static SmsProvider createSmsProvider() {
         return SmsProviderFactory.create();
+    }
+
+    private static AiProvider createAiProvider() {
+        return AiProviderFactory.create();
     }
 
     public static synchronized void reset() {
@@ -80,6 +89,7 @@ public final class ServiceRegistry {
         adminService = null;
         rateLimitService = null;
         reviewService = null;
+        aiService = null;
     }
 
     public static AuthService getAuthService() {
@@ -116,5 +126,9 @@ public final class ServiceRegistry {
 
     public static ReviewService getReviewService() {
         return reviewService;
+    }
+
+    public static AiService getAiService() {
+        return aiService;
     }
 }

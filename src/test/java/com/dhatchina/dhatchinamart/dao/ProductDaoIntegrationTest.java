@@ -236,4 +236,79 @@ class ProductDaoIntegrationTest {
         assertTrue(productDAO.find("%", null).isEmpty(), "a literal percent sign matches nothing");
         assertTrue(productDAO.find("_", null).isEmpty(), "a literal underscore matches nothing");
     }
+
+    @Test
+    void marketplaceQueriesHideOutOfStockProducts() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("Out Of Stock Widget");
+        product.setPrice(new BigDecimal("10.00"));
+        product.setStockQty(0);
+        product.setCategory("Home");
+        long id = productDAO.insert(product);
+
+        assertEquals(40, productDAO.count(null, null), "out-of-stock products must not be counted");
+        assertTrue(productDAO.count("Out Of Stock Widget", null) == 0);
+        assertFalse(productDAO.find(null, null).stream().anyMatch(p -> p.getId() == id));
+        assertFalse(productDAO.find("Widget", null).stream().anyMatch(p -> p.getId() == id));
+    }
+
+    @Test
+    void findByIdAndBySellerStillReturnOutOfStockProducts() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("Restock Me Later");
+        product.setPrice(new BigDecimal("10.00"));
+        product.setStockQty(0);
+        product.setCategory("Home");
+        long id = productDAO.insert(product);
+
+        Optional<Product> found = productDAO.findById(id);
+        assertTrue(found.isPresent(), "sellers must still be able to load an out-of-stock product");
+        assertTrue(productDAO.findBySeller(1L).stream().anyMatch(p -> p.getId() == id),
+                "seller dashboard must still list out-of-stock products");
+    }
+
+    @Test
+    void findAllIncludesActiveAndUnlistedProducts() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("Under Moderation");
+        product.setPrice(new BigDecimal("10.00"));
+        product.setStockQty(10);
+        product.setCategory("Home");
+        long id = productDAO.insert(product);
+        assertTrue(productDAO.updateActive(id, false));
+
+        List<Product> all = productDAO.findAll();
+
+        assertTrue(all.stream().anyMatch(p -> p.getId() == id && !p.isActive()),
+                "admin moderation must see unlisted products");
+        assertTrue(all.size() == productDAO.countAll());
+    }
+
+    @Test
+    void marketplaceQueriesHideUnlistedProducts() {
+        Product product = new Product();
+        product.setSellerId(1L);
+        product.setName("Hidden From Buyers");
+        product.setPrice(new BigDecimal("10.00"));
+        product.setStockQty(10);
+        product.setCategory("Home");
+        long id = productDAO.insert(product);
+        assertTrue(productDAO.updateActive(id, false));
+
+        assertEquals(40, productDAO.count(null, null), "unlisted products must not be counted");
+        assertEquals(0, productDAO.count("Hidden From Buyers", null));
+        assertFalse(productDAO.find(null, null).stream().anyMatch(p -> p.getId() == id));
+        assertTrue(productDAO.findById(id).isPresent(),
+                "detail load used by sellers/admin must still see the unlisted product");
+        assertTrue(productDAO.findBySeller(1L).stream().anyMatch(p -> p.getId() == id),
+                "seller dashboard must still list unlisted products");
+    }
+
+    @Test
+    void updateActiveMissingProductReturnsFalse() {
+        assertFalse(productDAO.updateActive(999_999L, false));
+    }
 }

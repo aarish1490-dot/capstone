@@ -45,12 +45,38 @@ class ProductServiceTest {
         product.setId(1L);
         product.setName("Wireless Bluetooth Headphones");
         product.setPrice(new BigDecimal("1299.00"));
+        product.setStockQty(10);
         when(productDAO.findById(1L)).thenReturn(Optional.of(product));
 
         Product found = productService.getById(1L);
 
         assertEquals(1L, found.getId());
         assertEquals("Wireless Bluetooth Headphones", found.getName());
+    }
+
+    @Test
+    void getByIdHidesOutOfStockProduct() {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Wireless Bluetooth Headphones");
+        product.setPrice(new BigDecimal("1299.00"));
+        product.setStockQty(0);
+        when(productDAO.findById(1L)).thenReturn(Optional.of(product));
+
+        assertThrows(NotFoundException.class, () -> productService.getById(1L));
+    }
+
+    @Test
+    void getByIdHidesUnlistedProduct() {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Under Moderation");
+        product.setPrice(new BigDecimal("1299.00"));
+        product.setStockQty(10);
+        product.setActive(false);
+        when(productDAO.findById(1L)).thenReturn(Optional.of(product));
+
+        assertThrows(NotFoundException.class, () -> productService.getById(1L));
     }
 
     @Test
@@ -178,6 +204,30 @@ class ProductServiceTest {
 
         assertEquals(1L, found.getId());
         assertEquals(10L, found.getSellerId());
+    }
+
+    @Test
+    void getOwnedProductReturnsOutOfStockForOwner() {
+        Product product = sampleOwnedProduct(1L, 10L);
+        product.setStockQty(0);
+        when(productDAO.findById(1L)).thenReturn(Optional.of(product));
+
+        Product found = productService.getOwnedProduct(10L, 1L);
+
+        assertEquals(1L, found.getId());
+        assertEquals(0, found.getStockQty());
+    }
+
+    @Test
+    void getOwnedProductReturnsUnlistedForOwner() {
+        Product product = sampleOwnedProduct(1L, 10L);
+        product.setActive(false);
+        when(productDAO.findById(1L)).thenReturn(Optional.of(product));
+
+        Product found = productService.getOwnedProduct(10L, 1L);
+
+        assertEquals(1L, found.getId());
+        assertFalse(found.isActive(), "sellers must still manage their unlisted products");
     }
 
     @Test

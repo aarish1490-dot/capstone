@@ -4,6 +4,7 @@ import com.dhatchina.dhatchinamart.dao.CartDAO;
 import com.dhatchina.dhatchinamart.dao.OrderDAO;
 import com.dhatchina.dhatchinamart.dao.ProductDAO;
 import com.dhatchina.dhatchinamart.dto.SellerOrderView;
+import com.dhatchina.dhatchinamart.dto.SellerStats;
 import com.dhatchina.dhatchinamart.exception.NotFoundException;
 import com.dhatchina.dhatchinamart.exception.ValidationException;
 import com.dhatchina.dhatchinamart.model.CartItem;
@@ -136,6 +137,14 @@ public class OrderService {
             views.add(new SellerOrderView(order, orderDAO.findItemsByOrderForSeller(order.getId(), sellerId)));
         }
         return views;
+    }
+
+    /**
+     * Aggregated sales figures (order count, units sold, revenue) for the
+     * seller's own line items.
+     */
+    public SellerStats salesStats(long sellerId) {
+        return orderDAO.findSellerSales(sellerId);
     }
 
     /**

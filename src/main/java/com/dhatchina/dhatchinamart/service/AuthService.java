@@ -65,6 +65,9 @@ public class AuthService {
             throw new ValidationException("Mobile number is not registered.");
         }
         User user = found.get();
+        if (!user.isActive()) {
+            throw new ValidationException("Your account has been deactivated. Contact support.");
+        }
         user.setPasswordHash(null);
         return user;
     }
@@ -82,6 +85,9 @@ public class AuthService {
         }
 
         User user = found.get();
+        if (!user.isActive()) {
+            throw new ValidationException("Your account has been deactivated");
+        }
         user.setPasswordHash(null);
         log.info("User logged in: email={}, id={}, role={}", normalizedEmail, user.getId(), user.getRole());
         return user;
