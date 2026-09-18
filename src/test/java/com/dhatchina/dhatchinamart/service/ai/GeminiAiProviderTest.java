@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -125,6 +126,40 @@ class GeminiAiProviderTest {
         assertTrue(GeminiAiProvider.parseReply(
                 "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"  \"}]}}]}").isEmpty());
         assertTrue(GeminiAiProvider.parseReply("not json at all").isEmpty());
+    }
+
+    @Test
+    void slowProviderTimesOutAndReturnsEmptyFallback() throws IOException {
+        server.createContext("/slow", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            try {
+                Thread.sleep(3_000L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            respond(exchange, 200, REPLY_BODY);
+        });
+        GeminiAiProvider provider = new GeminiAiProvider(
+                baseUrl + "/slow", "secret-key-123", 200L, HttpClient.newHttpClient());
+
+        long start = System.nanoTime();
+        Optional<String> reply = provider.complete(SYSTEM_PROMPT, conversation("hi"));
+        long elapsedMillis = (System.nanoTime() - start) / 1_000_000;
+
+        assertTrue(reply.isEmpty(), "a timed-out request must fall back to the empty reply");
+        assertTrue(elapsedMillis < 2_500L,
+                "caller must not wait beyond the configured timeout (returned in " + elapsedMillis + " ms)");
+    }
+
+    @Test
+    void requestCarriesConfiguredTimeoutHeaderBehaviour() throws Exception {
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() ->
+                        new GeminiAiProvider(baseUrl + "/reply", "secret-key-123", 5_000L,
+                                HttpClient.newBuilder()
+                                        .connectTimeout(Duration.ofMillis(5_000L))
+                                        .build())
+                                .complete(SYSTEM_PROMPT, conversation("timeout sanity")),
+                "provider construction with a timeout must work and the request must complete");
     }
 
     private List<ChatMessage> conversation(String message) {

@@ -23,9 +23,11 @@ import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -165,6 +167,41 @@ class OrderServiceIntegrationTest {
         assertEquals(5, cartDAO.findByUserId(buyerId).get(0).getQuantity(),
                 "cart rows must be kept intact after a rollback");
         assertEquals(2, productDAO.findById(2L).orElseThrow().getStockQty(), "stock must be untouched");
+    }
+
+    @Test
+    void failureAfterOrderAndFirstDecrementRollsBackEverything() {
+        final int[] decrementCalls = {0};
+        ProductDAO exploding = new ProductDAOImpl(dataSource) {
+            @Override
+            public boolean decrementStock(Connection connection, long productId, int quantity) {
+                decrementCalls[0]++;
+                if (decrementCalls[0] == 2) {
+                    throw new RuntimeException("simulated database failure during decrement");
+                }
+                return super.decrementStock(connection, productId, quantity);
+            }
+        };
+        OrderService service = new OrderService(dataSource, orderDAO, cartDAO, exploding);
+
+        cartService.addToCart(buyerId, 1L, 1);
+        cartService.addToCart(buyerId, 2L, 1);
+        int initialStock1 = productDAO.findById(1L).orElseThrow().getStockQty();
+        int initialStock2 = productDAO.findById(2L).orElseThrow().getStockQty();
+
+        assertThrows(RuntimeException.class, () -> service.placeOrder(buyerId));
+
+        assertEquals(0, orderDAO.countAll(), "the partially written order must be rolled back");
+        assertEquals(0, orderDAO.findItemsByOrderId(1L).size(), "stale order items must not remain");
+        assertEquals(initialStock1, productDAO.findById(1L).orElseThrow().getStockQty(),
+                "the first stock decrement (inside the failed transaction) must be rolled back");
+        assertEquals(initialStock2, productDAO.findById(2L).orElseThrow().getStockQty(),
+                "stock of the product that failed to decrement must be untouched");
+        assertFalse(cartDAO.findByUserId(buyerId).isEmpty(),
+                "the cart must be kept intact after any failed order");
+        assertEquals(1, cartDAO.findByUserId(buyerId).stream()
+                        .filter(item -> item.getProductId() == 1L).findFirst().orElseThrow().getQuantity(),
+                "cart quantity must survive a rollback");
     }
 
     @Test

@@ -120,8 +120,11 @@ public final class ValidationUtil {
     }
 
     public static java.math.BigDecimal parsePrice(String value) {
+        if (value == null || value.isBlank()) {
+            throw new ValidationException("Price must be a valid number");
+        }
         try {
-            java.math.BigDecimal price = new java.math.BigDecimal(value);
+            java.math.BigDecimal price = new java.math.BigDecimal(value.trim());
             if (price.compareTo(java.math.BigDecimal.ZERO) <= 0) {
                 throw new ValidationException("Price must be greater than zero");
             }

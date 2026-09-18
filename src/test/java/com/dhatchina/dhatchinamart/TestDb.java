@@ -18,11 +18,15 @@ public final class TestDb {
     }
 
     public static DataSource newDataSource(String name) {
+        return newDataSource(name, 5);
+    }
+
+    public static DataSource newDataSource(String name, int poolSize) {
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:h2:mem:" + name + ";DB_CLOSE_DELAY=-1");
+        config.setJdbcUrl("jdbc:h2:mem:" + name + ";DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000");
         config.setUsername("sa");
         config.setPassword("");
-        config.setMaximumPoolSize(5);
+        config.setMaximumPoolSize(poolSize);
         HikariDataSource dataSource = new HikariDataSource(config);
         runScript(dataSource, "db/schema.sql");
         runScript(dataSource, "db/seed.sql");
