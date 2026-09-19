@@ -3,5 +3,25 @@ services:
     name: dhatchinamart
     runtime: docker
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /dhatchinamart/
+    healthCheckPath: /dhatchinamart/api/v1/health
     autoDeploy: true
+    plan: starter
+    envVars:
+      # Demo deployment: OTPs are the mock/development provider (shown on the
+      # login page). For real SMS set OTP_MODE=production + SMS_PROVIDER=real
+      # and provide SMS_API_URL / SMS_API_KEY. Production mode fails fast at
+      # startup if the real provider is not fully configured, so the mock can
+      # never be active in production.
+      - key: OTP_MODE
+        value: development
+      - key: SMS_PROVIDER
+        value: mock
+      # AI assistant: mock by default (no network). Set AI_PROVIDER=gemini and
+      # GEMINI_API_KEY (secret) for the real assistant; it falls back to mock
+      # only if the key is missing.
+      - key: AI_PROVIDER
+        value: mock
+    disk:
+      name: dhatchinamart-data
+      mountPath: /data
+      sizeGB: 1

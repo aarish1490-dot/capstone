@@ -1,0 +1,4 @@
+# Keep the entrypoint as LF so the Linux container can execute it even when the
+# repository is checked out on Windows (core.autocrlf may otherwise rewrite it).
+docker-entrypoint.sh text eol=lf
+*.sh text eol=lf
