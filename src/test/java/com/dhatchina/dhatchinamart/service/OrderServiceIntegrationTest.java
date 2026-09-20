@@ -163,7 +163,8 @@ class OrderServiceIntegrationTest {
 
         assertThrows(ValidationException.class, () -> orderService.placeOrder(buyerId));
 
-        assertEquals(0, orderDAO.countAll(), "no order must be persisted");
+        long orderCount = orderDAO.countAll();
+        assertEquals(5, orderCount, "only the seeded demo orders exist");
         assertEquals(5, cartDAO.findByUserId(buyerId).get(0).getQuantity(),
                 "cart rows must be kept intact after a rollback");
         assertEquals(2, productDAO.findById(2L).orElseThrow().getStockQty(), "stock must be untouched");
@@ -191,7 +192,7 @@ class OrderServiceIntegrationTest {
 
         assertThrows(RuntimeException.class, () -> service.placeOrder(buyerId));
 
-        assertEquals(0, orderDAO.countAll(), "the partially written order must be rolled back");
+        assertEquals(5, orderDAO.countAll(), "the partially written order must be rolled back; only the 5 seeded demo orders remain");
         assertEquals(0, orderDAO.findItemsByOrderId(1L).size(), "stale order items must not remain");
         assertEquals(initialStock1, productDAO.findById(1L).orElseThrow().getStockQty(),
                 "the first stock decrement (inside the failed transaction) must be rolled back");
@@ -212,7 +213,7 @@ class OrderServiceIntegrationTest {
         ValidationException ex = assertThrows(ValidationException.class, () -> orderService.placeOrder(buyerId));
 
         assertEquals("Your cart is empty", ex.getMessage());
-        assertEquals(1, orderDAO.countAll(), "a second sequential submit must not create a second order");
+        assertEquals(6, orderDAO.countAll(), "only the first submit (plus the 5 seeded demo orders) must persist");
     }
 
     @Test

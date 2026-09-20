@@ -195,7 +195,7 @@ class OrderDaoIntegrationTest {
 
         List<Order> all = orderDAO.findAll();
 
-        assertEquals(2, all.size());
+        assertEquals(7, all.size(), "5 demo orders from seed + 2 inserted in this test");
         assertTrue(all.stream().anyMatch(o -> o.getId() == orderForA && "Buyer A".equals(o.getBuyerName())));
         assertTrue(all.stream().anyMatch(o -> o.getId() == orderForB && "Buyer B".equals(o.getBuyerName())));
     }

@@ -1,14 +1,27 @@
 -- DhatchinaMart seed data
--- Only the admin account is pre-created. Everyone else registers
--- themselves as a Buyer or Seller on the /register page.
--- Passwords are real bcrypt hashes:
---   admin@dhatchinamart.com / Admin@123
--- Demo mobile number for the seeded admin (used for OTP login):
---   9876500001
--- Products are owned by the platform admin (id 1) so the catalog is always populated.
+-- One admin + a curated set of demo accounts so the whole marketplace
+-- (browse, cart, checkout, orders, seller fulfilment, ratings) can be
+-- explored without registering. Passwords are real bcrypt hashes.
+--
+-- Demo accounts (see docs/DEMO_CREDENTIALS.md for full notes):
+--   admin@dhatchinamart.com   / Admin@123    (9876500001) - Platform Admin
+--   buyer@dhatchinamart.com   / Buyer@123    (9844090001) - Buyer, cart ready to checkout
+--   student@dhatchinamart.com / Student@123  (9844090002) - Buyer with a delivered order
+--   seller@dhatchinamart.com  / Seller@123   (9844090003) - Seller (Electronics)
+--   campus@dhatchinamart.com  / Campus@123   (9844090004) - Seller (Books)
+-- All four demo mobiles accept a mock/dev OTP when signing in with a phone.
+--
+-- The remaining 33 of the 40 catalog products stay owned by the platform
+-- admin (id 1) so the admin catalog is always populated.
 
 INSERT INTO users (id, name, email, mobile_number, password_hash, role) VALUES
   (1, 'Platform Admin', 'admin@dhatchinamart.com', '9876500001', '$2a$10$i3Xw2lMwEHYovzkspFaqOu/aFUkFU90ANtgkNCdz5z9QKWYHgIlRO', 'ADMIN');
+
+INSERT INTO users (id, name, email, mobile_number, password_hash, role, created_at) VALUES
+  (2, 'Demo Buyer',       'buyer@dhatchinamart.com',     '9844090001', '$2a$10$D46XcZlULkF49TTrhsgTIuM/5LRXZhreOltf1NYuky9pmm/pCQDem', 'BUYER',  '2026-08-01 09:00:00'),
+  (3, 'Demo Student',     'student@dhatchinamart.com',   '9844090002', '$2a$10$oAUkm7s5tczbsM1fNcAfRuMgn/bCyYP3XkGmphGrKEQhlf7ZgM5YS', 'BUYER',  '2026-08-01 09:05:00'),
+  (4, 'Demo Seller',      'seller@dhatchinamart.com',    '9844090003', '$2a$10$3LpK6oFgMhZnZaxgloXo0u8zdG.i.gmMug7Pn.TXIL/9t5W7h8fam', 'SELLER', '2026-08-02 10:00:00'),
+  (5, 'Demo Campus Shop', 'campus@dhatchinamart.com',    '9844090004', '$2a$10$3dPaAtqIiCBtKh.Wm0.HjegiZyi83OZNFn9hZHopscNNChZSOn0mu', 'SELLER', '2026-08-02 10:10:00');
 
 -- ==================================================
 -- PRODUCT CATALOG (40 products, 5 categories x 8)
@@ -69,8 +82,64 @@ INSERT INTO products (id, seller_id, name, description, price, stock_qty, catego
   (39, 1, 'Recycled Paper Desk Journal', 'A sturdy journal made from recycled paper for notes, lists or a diary.', 279.00, 29, 'Home', 'images/products/recycled-paper-journal.jpg'),
   (40, 1, 'Mini Indoor Plant Starter Kit', 'A small kit with a pot, seeds and soil to start your first indoor plant.', 449.00, 17, 'Home', 'images/products/indoor-plant-kit.jpg');
 
+-- ==================================================
+-- PRODUCT OWNERSHIP (demo sellers)
+-- Six catalog products are handed to the two demo sellers so their
+-- dashboards are not empty. Names, prices, stock, categories, images and
+-- the 40-product catalog size are unchanged.
+-- ==================================================
+
+-- Demo Seller (Electronics) -> laptop stand, USB-C hub, phone stand, moon mug
+UPDATE products SET seller_id = 4 WHERE id IN (25, 26, 30, 38);
+-- Demo Campus Shop (Books) -> cloud book, git guide
+UPDATE products SET seller_id = 5 WHERE id IN (13, 16);
+
+-- ==================================================
+-- DEMO BUYER CART
+-- buyer@dhatchinamart.com (id 2) left a cart ready to checkout.
+-- ==================================================
+
+INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES
+  (9001, 2, 1, 1),
+  (9002, 2, 25, 1),
+  (9003, 2, 38, 2);
+
+-- ==================================================
+-- DEMO ORDER HISTORY
+-- buyer@ has orders in every status (DELIVERED, SHIPPED, CONFIRMED, PENDING)
+-- so both the buyer history page and the seller dashboards have content.
+-- student@ has one delivered order used to seed a review.
+-- ==================================================
+
+INSERT INTO orders (id, buyer_id, status, total_amount, created_at) VALUES
+  (1001, 2, 'DELIVERED', 1727.00, '2026-08-28 11:05:00'),
+  (1002, 2, 'SHIPPED',    899.00, '2026-09-06 16:40:00'),
+  (1003, 2, 'CONFIRMED', 1297.00, '2026-09-14 09:15:00'),
+  (1004, 2, 'PENDING',    299.00, '2026-09-19 18:30:00'),
+  (1005, 3, 'DELIVERED',  499.00, '2026-09-01 13:20:00');
+
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price) VALUES
+  (2001, 1001, 1,  1, 599.00),
+  (2002, 1001, 25, 1, 799.00),
+  (2003, 1001, 16, 1, 329.00),
+  (2004, 1002, 26, 1, 899.00),
+  (2005, 1003, 38, 2, 399.00),
+  (2006, 1003, 27, 1, 499.00),
+  (2007, 1004, 30, 1, 299.00),
+  (2008, 1005, 13, 1, 499.00);
+
+-- ==================================================
+-- DEMO REVIEWS (orders must be DELIVERED, buyer owns the order)
+-- ==================================================
+
+INSERT INTO reviews (id, order_id, product_id, user_id, rating, review_text, created_at) VALUES
+  (1, 1001, 25, 2, 5, 'Solid wooden stand - my laptop sits at eye level and it looks great on the desk. Highly recommended!', '2026-09-02 09:30:00'),
+  (2, 1001, 16, 2, 4, 'Concise and handy. Exactly the commands I reach for every day between classes.',                          '2026-09-02 09:32:00'),
+  (3, 1005, 13, 3, 4, 'Finished the whole deployment walkthrough in one evening. Perfect first cloud project guide.',            '2026-09-05 18:10:00');
+
 ALTER TABLE users       ALTER COLUMN id RESTART WITH 100;
 ALTER TABLE products    ALTER COLUMN id RESTART WITH 100;
 ALTER TABLE cart_items  ALTER COLUMN id RESTART WITH 100;
 ALTER TABLE orders      ALTER COLUMN id RESTART WITH 100;
 ALTER TABLE order_items ALTER COLUMN id RESTART WITH 100;
+ALTER TABLE reviews     ALTER COLUMN id RESTART WITH 100;
