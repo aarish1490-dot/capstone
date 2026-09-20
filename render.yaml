@@ -7,6 +7,12 @@ services:
     autoDeploy: true
     plan: starter
     envVars:
+      # Persistent H2 database on the attached disk (mountPath /data below).
+      # Render does NOT export RENDER_DISK_PATH, so the container entrypoint's
+      # automatic-disk branch cannot fire; point H2 at the disk explicitly.
+      # DB files are only seeded (db/schema.sql + db/seed.sql) on a fresh disk.
+      - key: DHAT_DB_URL
+        value: jdbc:h2:file:/data/dhatchinamart;AUTO_SERVER=TRUE
       # Demo deployment: OTPs are the mock/development provider (shown on the
       # login page). For real SMS set OTP_MODE=production + SMS_PROVIDER=real
       # and provide SMS_API_URL / SMS_API_KEY. Production mode fails fast at
