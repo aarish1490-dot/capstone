@@ -82,9 +82,9 @@ class EndToEndJourneyIntegrationTest {
         // Browse, search and category filter
         ProductPage all = productService.browse(null, null, 1, 12);
         assertEquals(40, all.getTotalItems(), "seed catalog");
-        assertTrue(productService.browse("headphones", null).stream()
-                        .allMatch(p -> p.getName().toLowerCase().contains("headphones")
-                                || p.getDescription().toLowerCase().contains("headphones")),
+        assertTrue(productService.browse("kalamkari", null).stream()
+                        .allMatch(p -> p.getName().toLowerCase().contains("kalamkari")
+                                || p.getDescription().toLowerCase().contains("kalamkari")),
                 "keyword search matches");
         List<Product> electronics = productService.browse(null, "Electronics");
         assertFalse(electronics.isEmpty());
@@ -92,7 +92,7 @@ class EndToEndJourneyIntegrationTest {
 
         // Product details
         Product product = productService.getById(1L);
-        assertEquals(new BigDecimal("1499.00"), product.getPrice());
+        assertEquals(new BigDecimal("599.00"), product.getPrice());
 
         // Cart add and update
         int stockBefore = productDAO.findById(1L).orElseThrow().getStockQty();
@@ -104,7 +104,7 @@ class EndToEndJourneyIntegrationTest {
         // Checkout
         Order order = orderService.placeOrder(buyer.getId());
         assertNotNull(order.getId());
-        assertEquals(new BigDecimal("4497.00"), order.getTotalAmount());
+        assertEquals(new BigDecimal("1797.00"), order.getTotalAmount());
         assertTrue(cartService.getCart(buyer.getId()).isEmpty(), "cart cleared after order");
         assertEquals(stockBefore - 3, productDAO.findById(1L).orElseThrow().getStockQty(),
                 "stock reduced by ordered quantity");

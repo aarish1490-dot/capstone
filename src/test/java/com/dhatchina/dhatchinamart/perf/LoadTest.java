@@ -259,7 +259,7 @@ class LoadTest {
         private void iterate() {
             measure("login", () -> harness.authService.login(email, "PerfPass@123"));
             measure("browse", () -> harness.productService.browse(null, null, 1, 12));
-            measure("search", () -> harness.productService.browse("wireless", null, 1, 12));
+            measure("search", () -> harness.productService.browse("kalamkari", null, 1, 12));
             measure("filter", () -> harness.productService.browse(null, "Electronics", 1, 12));
             measure("categories", () -> harness.productService.categories());
             measure("details", () -> harness.productService.getById((iteration % 40) + 1));

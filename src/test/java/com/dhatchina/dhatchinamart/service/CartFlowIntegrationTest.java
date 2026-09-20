@@ -25,8 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CartFlowIntegrationTest {
 
-    private static final long HEADPHONES_ID = 1L;
-    private static final long SMART_WATCH_ID = 4L;
+    private static final long TOTE_BAG_ID = 1L;
+    private static final long SLING_BAG_ID = 4L;
 
     private CartService cartService;
     private CartDAO cartDAO;
@@ -53,68 +53,68 @@ class CartFlowIntegrationTest {
 
     @Test
     void cartLifecycleAddUpdateRemoveReAdd() {
-        cartService.addToCart(buyerId, HEADPHONES_ID, 2);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 2);
 
         CartView view = cartService.getCart(buyerId);
         assertFalse(view.isEmpty());
         assertEquals(2, view.getCount());
-        assertEquals(new BigDecimal("2998.00"), view.getTotal());
+        assertEquals(new BigDecimal("1198.00"), view.getTotal());
         assertEquals(2, view.getLines().get(0).getQuantity());
 
-        cartService.updateQuantity(buyerId, HEADPHONES_ID, 3);
+        cartService.updateQuantity(buyerId, TOTE_BAG_ID, 3);
         view = cartService.getCart(buyerId);
         assertEquals(3, view.getCount());
-        assertEquals(new BigDecimal("4497.00"), view.getTotal());
+        assertEquals(new BigDecimal("1797.00"), view.getTotal());
 
-        cartService.addToCart(buyerId, HEADPHONES_ID, 1);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 1);
         assertEquals(4, cartService.countItems(buyerId));
-        assertEquals(new BigDecimal("5996.00"), cartService.getCart(buyerId).getTotal());
+        assertEquals(new BigDecimal("2396.00"), cartService.getCart(buyerId).getTotal());
 
-        cartService.removeItem(buyerId, HEADPHONES_ID);
+        cartService.removeItem(buyerId, TOTE_BAG_ID);
         assertTrue(cartService.getCart(buyerId).isEmpty());
         assertEquals(0, cartService.countItems(buyerId));
 
-        cartService.addToCart(buyerId, HEADPHONES_ID, 1);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 1);
         assertEquals(1, cartService.countItems(buyerId));
     }
 
     @Test
     void combinedCartTotalMixesProductsAndQuantities() {
-        cartService.addToCart(buyerId, HEADPHONES_ID, 2);
-        cartService.addToCart(buyerId, SMART_WATCH_ID, 1);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 2);
+        cartService.addToCart(buyerId, SLING_BAG_ID, 1);
 
         CartView view = cartService.getCart(buyerId);
 
         assertEquals(3, view.getCount());
-        assertEquals(new BigDecimal("2998.00").add(new BigDecimal("2999.00")), view.getTotal());
+        assertEquals(new BigDecimal("1198.00").add(new BigDecimal("549.00")), view.getTotal());
         assertEquals(2, view.getLines().size());
     }
 
     @Test
     void secondAddOfSameProductIncrementsQuantity() {
-        cartService.addToCart(buyerId, HEADPHONES_ID, 2);
-        cartService.addToCart(buyerId, HEADPHONES_ID, 3);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 2);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 3);
 
         CartView view = cartService.getCart(buyerId);
 
         assertEquals(5, view.getCount());
         assertEquals(1, view.getLines().size());
-        assertEquals(new BigDecimal("7495.00"), view.getTotal());
+        assertEquals(new BigDecimal("2995.00"), view.getTotal());
     }
 
     @Test
     void addingBeyondStockIsRejected() {
-        cartService.addToCart(buyerId, HEADPHONES_ID, 20);
+        cartService.addToCart(buyerId, TOTE_BAG_ID, 20);
 
-        assertThrows(ValidationException.class, () -> cartService.addToCart(buyerId, HEADPHONES_ID, 10));
+        assertThrows(ValidationException.class, () -> cartService.addToCart(buyerId, TOTE_BAG_ID, 10));
         assertEquals(20, cartService.countItems(buyerId), "rejected add must not change the cart");
     }
 
     @Test
     void outOfStockOrShrunkStockItemsAreClampedOnRead() {
-        cartService.addToCart(buyerId, SMART_WATCH_ID, 5);
+        cartService.addToCart(buyerId, SLING_BAG_ID, 5);
 
-        Optional<Product> watch = productDAO.findById(SMART_WATCH_ID);
+        Optional<Product> watch = productDAO.findById(SLING_BAG_ID);
         assertTrue(watch.isPresent());
         watch.get().setStockQty(2);
         productDAO.update(watch.get());
@@ -124,15 +124,15 @@ class CartFlowIntegrationTest {
         assertEquals(1, view.getLines().size());
         assertEquals(2, view.getLines().get(0).getQuantity());
         assertEquals(1, view.getQuantityReduced());
-        assertEquals(2, cartDAO.findByUserAndProduct(buyerId, SMART_WATCH_ID).orElseThrow().getQuantity(),
+        assertEquals(2, cartDAO.findByUserAndProduct(buyerId, SLING_BAG_ID).orElseThrow().getQuantity(),
                 "the clamped quantity must be persisted");
     }
 
     @Test
     void stockDroppingToZeroRemovesItemFromCart() {
-        cartService.addToCart(buyerId, SMART_WATCH_ID, 2);
+        cartService.addToCart(buyerId, SLING_BAG_ID, 2);
 
-        Optional<Product> watch = productDAO.findById(SMART_WATCH_ID);
+        Optional<Product> watch = productDAO.findById(SLING_BAG_ID);
         assertTrue(watch.isPresent());
         watch.get().setStockQty(0);
         productDAO.update(watch.get());
@@ -141,7 +141,7 @@ class CartFlowIntegrationTest {
 
         assertTrue(view.isEmpty());
         assertEquals(1, view.getUnavailableRemoved());
-        assertTrue(cartDAO.findByUserAndProduct(buyerId, SMART_WATCH_ID).isEmpty(),
+        assertTrue(cartDAO.findByUserAndProduct(buyerId, SLING_BAG_ID).isEmpty(),
                 "stale rows must be deleted from the cart");
     }
 }

@@ -90,18 +90,18 @@ class OrderServiceIntegrationTest {
         assertNotNull(order);
         assertTrue(order.getId() > 0, "order id must be generated");
         assertEquals("PENDING", order.getStatus());
-        assertEquals(new BigDecimal("2998.00"), order.getTotalAmount(),
-                "total must be 2 x 1499.00");
+        assertEquals(new BigDecimal("1198.00"), order.getTotalAmount(),
+                "total must be 2 x 599.00");
 
         Product product = productDAO.findById(1L).orElseThrow();
-        assertEquals(23, product.getStockQty(), "stock must be reduced by 2");
+        assertEquals(22, product.getStockQty(), "stock must be reduced by 2");
 
         assertEquals(0, cartService.getCart(buyerId).getCount(), "cart must be cleared");
 
         List<OrderItem> items = orderDAO.findItemsByOrderId(order.getId());
         assertEquals(1, items.size());
         assertEquals(2, items.get(0).getQuantity());
-        assertEquals(new BigDecimal("1499.00"), items.get(0).getUnitPrice());
+        assertEquals(new BigDecimal("599.00"), items.get(0).getUnitPrice());
     }
 
     @Test
@@ -111,8 +111,8 @@ class OrderServiceIntegrationTest {
 
         Order order = orderService.placeOrder(buyerId);
 
-        assertEquals(new BigDecimal("3797.00"), order.getTotalAmount(),
-                "total must be 2 x 1499.00 + 1 x 799.00");
+        assertEquals(new BigDecimal("1347.00"), order.getTotalAmount(),
+                "total must be 2 x 599.00 + 1 x 149.00");
         assertEquals(2, orderDAO.findItemsByOrderId(order.getId()).size());
     }
 

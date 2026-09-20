@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CartDaoIntegrationTest {
 
-    private static final long SEED_PRODUCT_HEADPHONES = 1L;
+    private static final long SEED_PRODUCT_TOTE = 1L;
 
     private CartDAO cartDAO;
     private ProductDAO productDAO;
@@ -60,24 +60,24 @@ class CartDaoIntegrationTest {
 
     @Test
     void findRowsByUserIdReturnsJoinedProductInformation() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
 
         List<CartRow> rows = cartDAO.findRowsByUserId(buyerA);
 
         assertEquals(1, rows.size());
         CartRow row = rows.get(0);
-        assertEquals(SEED_PRODUCT_HEADPHONES, row.getProductId());
+        assertEquals(SEED_PRODUCT_TOTE, row.getProductId());
         assertEquals(2, row.getQuantity());
         assertNotNull(row.getProduct());
-        assertEquals("Wireless Bluetooth Headphones", row.getProduct().getName());
-        assertEquals(new BigDecimal("1499.00"), row.getProduct().getPrice());
+        assertEquals("Kalamkari Canvas Tote Bag", row.getProduct().getName());
+        assertEquals(new BigDecimal("599.00"), row.getProduct().getPrice());
         assertNotNull(row.getProduct().getSellerName());
         assertFalse(row.getProduct().getSellerName().isBlank());
     }
 
     @Test
     void findRowsSeparatesCartsByUser() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
         addItem(buyerA, 2L, 1);
 
         assertTrue(cartDAO.findByUserId(buyerB).isEmpty());
@@ -87,9 +87,9 @@ class CartDaoIntegrationTest {
 
     @Test
     void insertIsFoundByUserAndProduct() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 3);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 3);
 
-        Optional<CartItem> found = cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_HEADPHONES);
+        Optional<CartItem> found = cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_TOTE);
 
         assertTrue(found.isPresent());
         assertEquals(3, found.get().getQuantity());
@@ -98,38 +98,38 @@ class CartDaoIntegrationTest {
 
     @Test
     void missingItemInOtherUsersCartReturnsEmpty() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 1);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 1);
 
-        assertTrue(cartDAO.findByUserAndProduct(buyerB, SEED_PRODUCT_HEADPHONES).isEmpty());
+        assertTrue(cartDAO.findByUserAndProduct(buyerB, SEED_PRODUCT_TOTE).isEmpty());
     }
 
     @Test
     void updateQuantityPersists() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 1);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 1);
 
-        cartDAO.updateQuantity(buyerA, SEED_PRODUCT_HEADPHONES, 7);
+        cartDAO.updateQuantity(buyerA, SEED_PRODUCT_TOTE, 7);
 
-        Optional<CartItem> found = cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_HEADPHONES);
+        Optional<CartItem> found = cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_TOTE);
         assertTrue(found.isPresent());
         assertEquals(7, found.get().getQuantity());
     }
 
     @Test
     void deleteRemovesOnlyTheTargetUsersItem() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
-        addItem(buyerB, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
+        addItem(buyerB, SEED_PRODUCT_TOTE, 2);
 
-        cartDAO.delete(buyerA, SEED_PRODUCT_HEADPHONES);
+        cartDAO.delete(buyerA, SEED_PRODUCT_TOTE);
 
-        assertTrue(cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_HEADPHONES).isEmpty());
-        assertTrue(cartDAO.findByUserAndProduct(buyerB, SEED_PRODUCT_HEADPHONES).isPresent());
+        assertTrue(cartDAO.findByUserAndProduct(buyerA, SEED_PRODUCT_TOTE).isEmpty());
+        assertTrue(cartDAO.findByUserAndProduct(buyerB, SEED_PRODUCT_TOTE).isPresent());
     }
 
     @Test
     void clearForUserRemovesAllOfThatUsersItems() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
         addItem(buyerA, 2L, 1);
-        addItem(buyerB, SEED_PRODUCT_HEADPHONES, 1);
+        addItem(buyerB, SEED_PRODUCT_TOTE, 1);
 
         cartDAO.clearForUser(buyerA);
 
@@ -139,7 +139,7 @@ class CartDaoIntegrationTest {
 
     @Test
     void countByUserSumsQuantities() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
         addItem(buyerA, 2L, 3);
 
         assertEquals(5, cartDAO.countByUser(buyerA));
@@ -147,14 +147,14 @@ class CartDaoIntegrationTest {
 
     @Test
     void countByUserIsZeroForOperatorOnEmptyCart() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
 
         assertEquals(0, cartDAO.countByUser(buyerB));
     }
 
     @Test
     void injectionLikeIdsCannotAffectOtherRows() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 2);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 2);
 
         assertTrue(cartDAO.findByUserAndProduct(buyerA, Long.MAX_VALUE).isEmpty());
         assertTrue(cartDAO.findByUserAndProduct(buyerA, -1L).isEmpty());
@@ -166,12 +166,12 @@ class CartDaoIntegrationTest {
 
     @Test
     void productInfoIncludesStockAndSellerName() {
-        addItem(buyerA, SEED_PRODUCT_HEADPHONES, 1);
+        addItem(buyerA, SEED_PRODUCT_TOTE, 1);
 
         CartRow row = cartDAO.findRowsByUserId(buyerA).get(0);
 
         assertNotNull(row.getProduct());
-        assertEquals(25, row.getProduct().getStockQty());
+        assertEquals(24, row.getProduct().getStockQty());
         assertEquals("Platform Admin", row.getProduct().getSellerName());
     }
 }

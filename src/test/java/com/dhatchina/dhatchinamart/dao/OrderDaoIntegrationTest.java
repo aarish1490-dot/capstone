@@ -98,7 +98,7 @@ class OrderDaoIntegrationTest {
 
     @Test
     void insertAndFindOrderIncludesBuyerNameAndStatus() throws Exception {
-        long orderId = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
+        long orderId = insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1)));
 
         Optional<Order> found = orderDAO.findById(orderId);
 
@@ -106,12 +106,12 @@ class OrderDaoIntegrationTest {
         assertEquals(orderId, found.get().getId());
         assertEquals("Buyer A", found.get().getBuyerName());
         assertEquals("PENDING", found.get().getStatus());
-        assertEquals(new BigDecimal("1499.00"), found.get().getTotalAmount());
+        assertEquals(new BigDecimal("599.00"), found.get().getTotalAmount());
     }
 
     @Test
     void findItemsByOrderIdIncludesProductImage() throws Exception {
-        long orderId = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 2)));
+        long orderId = insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 2)));
 
         List<OrderItem> items = orderDAO.findItemsByOrderId(orderId);
 
@@ -138,7 +138,7 @@ class OrderDaoIntegrationTest {
         long orderWithSellerItem = insertOrder(buyerA,
                 List.of(item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 1)));
         long orderWithoutSellerItem = insertOrder(buyerA,
-                List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
+                List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1)));
 
         List<Order> orders = orderDAO.findContainingSeller(sellerA);
 
@@ -151,7 +151,7 @@ class OrderDaoIntegrationTest {
     void findItemsByOrderForSellerOnlyReturnsTheirLines() throws Exception {
         long sellerProduct = createProduct(sellerA, "Seller A Product", new BigDecimal("250.00"));
         long orderId = insertOrder(buyerA, List.of(
-                item(1L, "Headphones", new BigDecimal("1499.00"), 1),
+                item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1),
                 item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 3)));
 
         List<OrderItem> sellerLines = orderDAO.findItemsByOrderForSeller(orderId, sellerA);
@@ -165,7 +165,7 @@ class OrderDaoIntegrationTest {
 
     @Test
     void updateStatusPersistsAndReportsRowsAffected() throws Exception {
-        long orderId = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
+        long orderId = insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1)));
 
         assertTrue(orderDAO.updateStatus(orderId, "CONFIRMED"));
         assertEquals("CONFIRMED", orderDAO.findById(orderId).orElseThrow().getStatus());
@@ -179,8 +179,8 @@ class OrderDaoIntegrationTest {
 
     @Test
     void ordersAreIsolatedPerBuyer() throws Exception {
-        long orderForA = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
-        insertOrder(buyerB, List.of(item(2L, "Keyboard", new BigDecimal("2299.00"), 1)));
+        long orderForA = insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1)));
+        insertOrder(buyerB, List.of(item(2L, "Coconut Shell Keychain Set", new BigDecimal("199.00"), 1)));
 
         List<Order> history = orderDAO.findByBuyer(buyerA);
 
@@ -190,8 +190,8 @@ class OrderDaoIntegrationTest {
 
     @Test
     void findAllReturnsOrdersFromAllBuyers() throws Exception {
-        long orderForA = insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1)));
-        long orderForB = insertOrder(buyerB, List.of(item(2L, "Keyboard", new BigDecimal("2299.00"), 2)));
+        long orderForA = insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1)));
+        long orderForB = insertOrder(buyerB, List.of(item(2L, "Coconut Shell Keychain Set", new BigDecimal("199.00"), 2)));
 
         List<Order> all = orderDAO.findAll();
 
@@ -216,7 +216,7 @@ class OrderDaoIntegrationTest {
     @Test
     void findSellerSalesIgnoresOtherSellersAndSeededProducts() throws Exception {
         long sellerProduct = createProduct(sellerA, "Seller A Product", new BigDecimal("250.00"));
-        insertOrder(buyerA, List.of(item(1L, "Headphones", new BigDecimal("1499.00"), 1),
+        insertOrder(buyerA, List.of(item(1L, "Kalamkari Canvas Tote Bag", new BigDecimal("599.00"), 1),
                 item(sellerProduct, "Seller A Product", new BigDecimal("250.00"), 3)));
 
         SellerStats stats = orderDAO.findSellerSales(sellerA);

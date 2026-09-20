@@ -14,60 +14,60 @@ INSERT INTO users (id, name, email, mobile_number, password_hash, role) VALUES
 -- PRODUCT CATALOG (40 products, 5 categories x 8)
 -- ==================================================
 
--- ELECTRONICS (8)
-INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
-  (1,  1, 'Wireless Bluetooth Headphones', 'Comfortable wireless headphones with Bluetooth connectivity and long battery life.', 1499.00, 25, 'Electronics', 'images/products/headphones.jpg'),
-  (2,  1, 'Mechanical Keyboard', 'Compact mechanical keyboard suitable for gaming, programming and everyday use.', 2299.00, 20, 'Electronics', 'images/products/keyboard.jpg'),
-  (3,  1, 'Wireless Mouse', 'Ergonomic wireless mouse with precise tracking and comfortable grip.', 799.00, 30, 'Electronics', 'images/products/mouse.jpg'),
-  (4,  1, 'Smart Watch', 'Smart watch with activity tracking, notifications and fitness features.', 2999.00, 15, 'Electronics', 'images/products/smartwatch.jpg'),
-  (5,  1, 'Portable Bluetooth Speaker', 'Compact portable speaker with Bluetooth connectivity and clear audio.', 1299.00, 20, 'Electronics', 'images/products/speaker.jpg'),
-  (6,  1, 'USB-C Fast Charger', 'Fast USB-C charger suitable for compatible smartphones and electronic devices.', 899.00, 35, 'Electronics', 'images/products/charger.jpg'),
-  (7,  1, 'Power Bank 20,000mAh', 'High-capacity portable power bank for charging devices while travelling.', 1599.00, 25, 'Electronics', 'images/products/powerbank.jpg'),
-  (8,  1, 'Laptop Stand', 'Adjustable laptop stand designed for comfortable desk usage and improved posture.', 1099.00, 20, 'Electronics', 'images/products/laptopstand.jpg');
-
 -- ACCESSORIES (8)
 INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
-  (9,  1, 'Leather Wallet', 'Compact leather wallet with multiple card and cash compartments.', 699.00, 30, 'Accessories', 'images/products/wallet.jpg'),
-  (10, 1, 'Canvas Backpack', 'Durable everyday backpack suitable for college, work and travel.', 1299.00, 25, 'Accessories', 'images/products/backpack.jpg'),
-  (11, 1, 'Sunglasses', 'Stylish sunglasses suitable for everyday outdoor use.', 899.00, 30, 'Accessories', 'images/products/sunglasses.jpg'),
-  (12, 1, 'Analog Wrist Watch', 'Classic analog wrist watch with a clean and elegant design.', 1499.00, 15, 'Accessories', 'images/products/watch.jpg'),
-  (13, 1, 'Travel Pouch', 'Compact travel pouch for organizing small personal items.', 499.00, 40, 'Accessories', 'images/products/pouch.jpg'),
-  (14, 1, 'Keychain Set', 'Set of simple and durable keychains for everyday use.', 299.00, 50, 'Accessories', 'images/products/keychain.jpg'),
-  (15, 1, 'Card Holder', 'Slim card holder designed for carrying essential cards.', 399.00, 40, 'Accessories', 'images/products/cardholder.jpg'),
-  (16, 1, 'Belt', 'Adjustable casual belt suitable for everyday outfits.', 599.00, 30, 'Accessories', 'images/products/belt.jpg');
+  (1,  1, 'Kalamkari Canvas Tote Bag', 'A reusable canvas tote featuring a traditional Kalamkari-inspired print. Spacious enough for college, market runs and everyday carry.', 599.00, 24, 'Accessories', 'images/products/kalamkari-tote.jpg'),
+  (2,  1, 'Coconut Shell Keychain Set', 'A set of lightweight handcrafted keychains made from polished coconut shell pieces, finished by hand.', 199.00, 35, 'Accessories', 'images/products/coconut-keychain.jpg'),
+  (3,  1, 'Handcrafted Wooden Bookmark', 'A smooth, hand-engraved wooden bookmark that keeps your reading spot in style.', 149.00, 40, 'Accessories', 'images/products/wooden-bookmark.jpg'),
+  (4,  1, 'Recycled Fabric Sling Bag', 'A durable sling bag made from upcycled fabric, great for carrying small everyday essentials hands-free.', 549.00, 18, 'Accessories', 'images/products/recycled-sling.jpg'),
+  (5,  1, 'Palm Leaf Mini Wallet', 'A compact wallet handwoven from palm leaf strips with a secure fold-over closure.', 299.00, 28, 'Accessories', 'images/products/palm-leaf-wallet.jpg'),
+  (6,  1, 'Bamboo ID Card Holder', 'A light bamboo card holder that keeps your ID lanyard tidy and easy to scan.', 249.00, 30, 'Accessories', 'images/products/bamboo-id-holder.jpg'),
+  (7,  1, 'Handwoven Cotton Wrist Pouch', 'A small wrist pouch woven from leftover cotton yarns, perfect for cash, cards and lip balm.', 279.00, 22, 'Accessories', 'images/products/cotton-wrist-pouch.jpg'),
+  (8,  1, 'Terracotta Bead Bracelet', 'A simple bracelet of natural terracotta beads with a hand-tied cord.', 229.00, 26, 'Accessories', 'images/products/terracotta-bracelet.jpg');
 
 -- BOOKS (8)
 INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
-  (17, 1, 'Clean Code', 'A practical guide to writing readable, maintainable and professional software.', 599.00, 20, 'Books', 'images/products/clean-code.jpg'),
-  (18, 1, 'The Pragmatic Programmer', 'A practical software development guide covering programming practices and principles.', 699.00, 20, 'Books', 'images/products/pragmatic-programmer.jpg'),
-  (19, 1, 'Introduction to Algorithms', 'Comprehensive reference covering fundamental algorithms and data structures.', 899.00, 15, 'Books', 'images/products/intro-algorithms.jpg'),
-  (20, 1, 'Atomic Habits', 'A practical guide to building good habits and improving daily routines.', 499.00, 25, 'Books', 'images/products/atomic-habits.jpg'),
-  (21, 1, 'The Psychology of Money', 'A collection of insights about money, behaviour and personal finance.', 399.00, 30, 'Books', 'images/products/psychology-of-money.jpg'),
-  (22, 1, 'Deep Work', 'A guide to focused work and improving productivity in a distracted world.', 449.00, 25, 'Books', 'images/products/deep-work.jpg'),
-  (23, 1, 'Ikigai', 'A book exploring purpose, balance and meaningful living.', 299.00, 30, 'Books', 'images/products/ikigai.jpg'),
-  (24, 1, 'Rich Dad Poor Dad', 'A personal finance book discussing financial habits and money management.', 399.00, 30, 'Books', 'images/products/rich-dad.jpg');
+  (9,  1, 'The Minimalist Student Handbook', 'A refreshingly short guide to studying less and learning more, one idea per page.', 299.00, 20, 'Books', 'images/products/minimalist-student.jpg'),
+  (10, 1, 'Algorithms Without Fear', 'A gentle introduction to algorithms that skips the maths-scary parts and focuses on intuition.', 399.00, 18, 'Books', 'images/products/algorithms-book.jpg'),
+  (11, 1, 'Practical Linux for Beginners', 'A hands-on guide to daily Linux commands, file systems and shell basics.', 449.00, 16, 'Books', 'images/products/linux-beginners.jpg'),
+  (12, 1, 'The Creative Coder''s Notebook', 'A filled-with-ideas notebook for programmers who sketch, doodle and design before they code.', 249.00, 32, 'Books', 'images/products/coders-notebook.jpg'),
+  (13, 1, 'Build Your First Cloud Project', 'A beginner-friendly walkthrough of deploying your first app to the cloud end to end.', 499.00, 15, 'Books', 'images/products/cloud-project-book.jpg'),
+  (14, 1, 'Everyday Data Structures', 'A simple, practical introduction to arrays, linked lists, stacks, queues, trees and graph algorithms.', 379.00, 21, 'Books', 'images/products/data-structures-book.jpg'),
+  (15, 1, 'The Curious Inventor''s Journal', 'A guided journal for recording experiments and the small steps of every invention.', 279.00, 27, 'Books', 'images/products/inventor-journal.jpg'),
+  (16, 1, 'Pocket Guide to Git & GitHub', 'A compact reference for the git commands every student uses daily.', 329.00, 24, 'Books', 'images/products/git-guide.jpg');
 
 -- CLOTHING (8)
 INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
-  (25, 1, 'Classic Cotton T-Shirt', 'Comfortable cotton T-shirt suitable for everyday casual wear.', 499.00, 40, 'Clothing', 'images/products/tshirt.jpg'),
-  (26, 1, 'Casual Polo Shirt', 'Comfortable polo shirt suitable for casual and semi-casual occasions.', 799.00, 30, 'Clothing', 'images/products/polo.jpg'),
-  (27, 1, 'Denim Jeans', 'Classic denim jeans designed for everyday casual wear.', 1499.00, 25, 'Clothing', 'images/products/jeans.jpg'),
-  (28, 1, 'Cotton Hoodie', 'Comfortable cotton hoodie suitable for casual and cool-weather use.', 1099.00, 25, 'Clothing', 'images/products/hoodie.jpg'),
-  (29, 1, 'Formal Shirt', 'Classic formal shirt suitable for college presentations, office and formal occasions.', 899.00, 30, 'Clothing', 'images/products/formalshirt.jpg'),
-  (30, 1, 'Casual Shorts', 'Lightweight casual shorts suitable for everyday wear.', 699.00, 35, 'Clothing', 'images/products/shorts.jpg'),
-  (31, 1, 'Track Pants', 'Comfortable track pants suitable for sports, exercise and casual use.', 799.00, 30, 'Clothing', 'images/products/trackpants.jpg'),
-  (32, 1, 'Denim Jacket', 'Classic denim jacket suitable for casual outfits.', 1799.00, 20, 'Clothing', 'images/products/denimjacket.jpg');
+  (17, 1, 'Handblock Printed Cotton Shirt', 'A breathable cotton shirt with traditional hand-block prints, made for everyday wear.', 899.00, 14, 'Clothing', 'images/products/handblock-shirt.jpg'),
+  (18, 1, 'Kalamkari Casual Stole', 'A soft cotton stole with a fine Kalamkari print that goes with everything.', 649.00, 19, 'Clothing', 'images/products/kalamkari-stole.jpg'),
+  (19, 1, 'Handwoven Cotton Scarf', 'A light handwoven scarf that adds a layer of colour to any outfit.', 499.00, 23, 'Clothing', 'images/products/cotton-scarf.jpg'),
+  (20, 1, 'Indigo Print Overshirt', 'A relaxed cotton overshirt in deep indigo, sized for layering over tees.', 949.00, 12, 'Clothing', 'images/products/indigo-overshirt.jpg'),
+  (21, 1, 'Handloom Cotton Kurta', 'A comfortable handloom kurta cut for everyday wear.', 799.00, 17, 'Clothing', 'images/products/handloom-kurta.jpg'),
+  (22, 1, 'Organic Cotton Lounge Pants', 'Soft, breathable lounge pants in certified organic cotton.', 699.00, 20, 'Clothing', 'images/products/organic-lounge-pants.jpg'),
+  (23, 1, 'Block Print Casual Top', 'A casual top with subtle block-printed details.', 749.00, 16, 'Clothing', 'images/products/block-print-top.jpg'),
+  (24, 1, 'Cotton Everyday Overshirt', 'A classic cotton overshirt that works for the library, the lab or a weekend trip.', 849.00, 13, 'Clothing', 'images/products/cotton-overshirt.jpg');
+
+-- ELECTRONICS (8)
+INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
+  (25, 1, 'Wooden Laptop Stand', 'A sturdy wooden stand that lifts your laptop to eye level for a comfortable desk setup.', 799.00, 18, 'Electronics', 'images/products/wooden-laptop-stand.jpg'),
+  (26, 1, 'USB-C Multi-Port Hub', 'A compact USB-C hub with the ports you actually need for a student desk.', 899.00, 15, 'Electronics', 'images/products/usb-c-hub.jpg'),
+  (27, 1, 'Rechargeable Study Light', 'A clip-on rechargeable light for late-night study without disturbing anyone.', 499.00, 25, 'Electronics', 'images/products/rechargeable-study-light.jpg'),
+  (28, 1, 'Compact Desk LED Lamp', 'A slim LED lamp with three brightness levels for a tidy desk.', 649.00, 20, 'Electronics', 'images/products/desk-led-lamp.jpg'),
+  (29, 1, 'Cable Management Travel Kit', 'A small organizer to keep chargers, cables and earbuds tangle-free.', 349.00, 30, 'Electronics', 'images/products/cable-travel-kit.jpg'),
+  (30, 1, 'Foldable Phone Stand', 'A lightweight foldable stand that props your phone up beside your laptop.', 299.00, 32, 'Electronics', 'images/products/foldable-phone-stand.jpg'),
+  (31, 1, 'USB Rechargeable Mini Fan', 'A little desk fan that runs off USB and keeps you cool during long study sessions.', 549.00, 22, 'Electronics', 'images/products/mini-usb-fan.jpg'),
+  (32, 1, 'Smart Desk Cable Organizer', 'A simple organizer that keeps your desk cables neat and reachable.', 249.00, 35, 'Electronics', 'images/products/desk-cable-organizer.jpg');
 
 -- HOME (8)
 INSERT INTO products (id, seller_id, name, description, price, stock_qty, category, image_url) VALUES
-  (33, 1, 'Table Lamp', 'Compact table lamp suitable for study tables, desks and bedrooms.', 899.00, 25, 'Home', 'images/products/tablelamp.jpg'),
-  (34, 1, 'Ceramic Coffee Mug', 'Durable ceramic coffee mug suitable for everyday beverages.', 299.00, 40, 'Home', 'images/products/mug.jpg'),
-  (35, 1, 'Water Bottle', 'Reusable water bottle suitable for home, college and travel.', 599.00, 35, 'Home', 'images/products/bottle.jpg'),
-  (36, 1, 'Desk Organizer', 'Compact organizer for keeping stationery and desk items arranged.', 449.00, 30, 'Home', 'images/products/organizer.jpg'),
-  (37, 1, 'Cushion Set', 'Comfortable decorative cushion set suitable for sofas and chairs.', 699.00, 25, 'Home', 'images/products/cushion.jpg'),
-  (38, 1, 'Wall Clock', 'Simple wall clock suitable for bedrooms, offices and living spaces.', 799.00, 20, 'Home', 'images/products/wallclock.jpg'),
-  (39, 1, 'Storage Box Set', 'Set of reusable storage boxes for organizing household items.', 899.00, 25, 'Home', 'images/products/storagebox.jpg'),
-  (40, 1, 'Electric Kettle', 'Compact electric kettle suitable for quickly boiling water.', 1299.00, 20, 'Home', 'images/products/kettle.jpg');
+  (33, 1, 'Terracotta Self-Watering Plant Pot', 'A terracotta pot that waters your plant gently as it needs.', 499.00, 20, 'Home', 'images/products/terracotta-self-watering-pot.jpg'),
+  (34, 1, 'Coconut Shell Desk Organizer', 'A natural organizer made using coconut shell-inspired elements for small desk items.', 349.00, 25, 'Home', 'images/products/coconut-desk-organizer.jpg'),
+  (35, 1, 'Handwoven Palm Leaf Storage Basket', 'A sturdy basket handwoven from dried palm leaves for neatly storing daily items.', 699.00, 14, 'Home', 'images/products/palm-leaf-basket.jpg'),
+  (36, 1, 'Terracotta Aroma Lamp', 'A small terracotta lamp that makes your room feel warm and calm.', 299.00, 27, 'Home', 'images/products/terracotta-aroma-lamp.jpg'),
+  (37, 1, 'Bamboo Cable Organizer', 'A bamboo organizer that wraps desk cables neatly out of the way.', 249.00, 31, 'Home', 'images/products/bamboo-cable-organizer.jpg'),
+  (38, 1, 'Handmade Ceramic Moon Mug', 'A hand-glazed ceramic mug with a moon-inspired finish.', 399.00, 19, 'Home', 'images/products/moon-ceramic-mug.jpg'),
+  (39, 1, 'Recycled Paper Desk Journal', 'A sturdy journal made from recycled paper for notes, lists or a diary.', 279.00, 29, 'Home', 'images/products/recycled-paper-journal.jpg'),
+  (40, 1, 'Mini Indoor Plant Starter Kit', 'A small kit with a pot, seeds and soil to start your first indoor plant.', 449.00, 17, 'Home', 'images/products/indoor-plant-kit.jpg');
 
 ALTER TABLE users       ALTER COLUMN id RESTART WITH 100;
 ALTER TABLE products    ALTER COLUMN id RESTART WITH 100;

@@ -37,9 +37,9 @@ class ProductDaoIntegrationTest {
 
     @Test
     void searchByKeywordFiltersProducts() {
-        List<Product> products = productDAO.find("headphones", null);
+        List<Product> products = productDAO.find("bookmark", null);
         assertEquals(1, products.size());
-        assertEquals("Wireless Bluetooth Headphones", products.get(0).getName());
+        assertEquals("Handcrafted Wooden Bookmark", products.get(0).getName());
     }
 
     @Test
@@ -51,18 +51,18 @@ class ProductDaoIntegrationTest {
 
     @Test
     void searchAndCategoryTogether() {
-        List<Product> products = productDAO.find("the", "Books");
+        List<Product> products = productDAO.find("algorithms", "Books");
         assertEquals(2, products.size(), "keyword matches name or description within the selected category");
-        assertTrue(products.stream().anyMatch(p -> "The Pragmatic Programmer".equals(p.getName())));
-        assertTrue(products.stream().anyMatch(p -> "The Psychology of Money".equals(p.getName())));
+        assertTrue(products.stream().anyMatch(p -> "Algorithms Without Fear".equals(p.getName())));
+        assertTrue(products.stream().anyMatch(p -> "Everyday Data Structures".equals(p.getName())));
     }
 
     @Test
     void findByIdReturnsProductWithSellerName() {
         Optional<Product> product = productDAO.findById(1L);
         assertTrue(product.isPresent());
-        assertEquals("Wireless Bluetooth Headphones", product.get().getName());
-        assertEquals(new BigDecimal("1499.00"), product.get().getPrice());
+        assertEquals("Kalamkari Canvas Tote Bag", product.get().getName());
+        assertEquals(new BigDecimal("599.00"), product.get().getPrice());
         assertTrue(product.get().getSellerName() != null && !product.get().getSellerName().isBlank());
     }
 
@@ -182,11 +182,11 @@ class ProductDaoIntegrationTest {
 
     @Test
     void pagedFindCombinedWithFilters() {
-        List<Product> products = productDAO.find("the", "Books", 1, 0);
+        List<Product> products = productDAO.find("algorithms", "Books", 1, 0);
 
         assertEquals(1, products.size());
         String name = products.get(0).getName();
-        assertTrue("The Pragmatic Programmer".equals(name) || "The Psychology of Money".equals(name),
+        assertTrue("Algorithms Without Fear".equals(name) || "Everyday Data Structures".equals(name),
                 "expected one of the two matching books but was: " + name);
     }
 
@@ -202,7 +202,7 @@ class ProductDaoIntegrationTest {
 
     @Test
     void countWithKeywordFilters() {
-        assertEquals(1, productDAO.count("headphones", null));
+        assertEquals(1, productDAO.count("bookmark", null));
     }
 
     @Test
@@ -212,15 +212,15 @@ class ProductDaoIntegrationTest {
 
     @Test
     void countWithCombinedFilters() {
-        assertEquals(2, productDAO.count("the", "Books"));
+        assertEquals(2, productDAO.count("algorithms", "Books"));
     }
 
     @Test
     void keywordSearchTrimsAndIgnoresCase() {
-        List<Product> products = productDAO.find("  HEADPHONES  ", null);
+        List<Product> products = productDAO.find("  BOOKMARK  ", null);
 
         assertEquals(1, products.size());
-        assertEquals("Wireless Bluetooth Headphones", products.get(0).getName());
+        assertEquals("Handcrafted Wooden Bookmark", products.get(0).getName());
     }
 
     @Test
