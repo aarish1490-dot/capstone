@@ -5,14 +5,16 @@ services:
     dockerfilePath: ./Dockerfile
     healthCheckPath: /dhatchinamart/api/v1/health
     autoDeploy: true
-    plan: starter
+    # Free demo deployment: no persistent disk. The H2 database lives on the
+    # ephemeral container filesystem (/tmp) and is RE-SEEDED on each fresh
+    # instance (schema.sql + seed.sql run whenever the USERS table is absent).
+    # Data may be lost when Render restarts, redeploys or spins the service
+    # down after ~15 min idle - acceptable for the capstone demo.
+    plan: free
     envVars:
-      # Persistent H2 database on the attached disk (mountPath /data below).
-      # Render does NOT export RENDER_DISK_PATH, so the container entrypoint's
-      # automatic-disk branch cannot fire; point H2 at the disk explicitly.
-      # DB files are only seeded (db/schema.sql + db/seed.sql) on a fresh disk.
+      # H2 on the ephemeral, writable container filesystem (DEMO ONLY).
       - key: DHAT_DB_URL
-        value: jdbc:h2:file:/data/dhatchinamart;AUTO_SERVER=TRUE
+        value: jdbc:h2:file:/tmp/dhatchinamart;AUTO_SERVER=TRUE
       # Demo deployment: OTPs are the mock/development provider (shown on the
       # login page). For real SMS set OTP_MODE=production + SMS_PROVIDER=real
       # and provide SMS_API_URL / SMS_API_KEY. Production mode fails fast at
@@ -27,7 +29,3 @@ services:
       # only if the key is missing.
       - key: AI_PROVIDER
         value: mock
-    disk:
-      name: dhatchinamart-data
-      mountPath: /data
-      sizeGB: 1
