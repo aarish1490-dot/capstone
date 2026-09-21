@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# DhatchinaMart container entrypoint.
+# AarishMart container entrypoint.
 #
 # Handles two platform concerns so the same image works on Render, Fly, Dokku
 # or a plain `docker run`:
@@ -14,7 +14,7 @@ set -e
 
 # Persistent H2 on the platform disk (Render only).
 if [ -z "${DHAT_DB_URL}" ] && [ -n "${RENDER_DISK_PATH}" ]; then
-  export DHAT_DB_URL="jdbc:h2:file:${RENDER_DISK_PATH}/dhatchinamart;AUTO_SERVER=TRUE"
+  export DHAT_DB_URL="jdbc:h2:file:${RENDER_DISK_PATH}/aarishmart;AUTO_SERVER=TRUE"
   echo "DHAT_DB_URL not set - using persistent H2 on RENDER_DISK_PATH=${RENDER_DISK_PATH}"
 fi
 

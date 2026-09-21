@@ -112,7 +112,7 @@
         function addTyping() {
             var wrap = document.createElement("div");
             wrap.className = "chat-msg chat-msg-bot chat-typing";
-            wrap.textContent = "DhatchinaMart is typing...";
+            wrap.textContent = "AarishMart is typing...";
             wrap.id = "chatTyping";
             messages.appendChild(wrap);
             scrollToBottom();

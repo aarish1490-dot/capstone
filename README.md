@@ -1,4 +1,4 @@
-# DhatchinaMart
+# AarishMart
 
 A full-stack Java EE marketplace MVP with three roles: **Buyer**, **Seller**, and **Admin**. Built with JSP/Servlets (Java 11+), JSTL, HikariCP + H2, Tomcat 9, and hand-rolled CSS. No front-end frameworks, no Spring — pure Java EE, all SQL written by hand.
 
@@ -51,7 +51,7 @@ restarts; log in again any time with the same mobile number + OTP.
 
 | Role  | Email                     | Mobile        | Password    | Notes                              |
 | ----- | ------------------------- | ------------- | ----------- | ---------------------------------- |
-| Admin | `admin@dhatchinamart.com` | `9876500001`  | `Admin@123` | Only pre-seeded account            |
+| Admin | `admin@aarishmart.com` | `9876500001`  | `Admin@123` | Only pre-seeded account            |
 
 > **Existing databases:** on first boot after this upgrade, existing users keep
 > their accounts and are assigned a placeholder mobile number
@@ -95,7 +95,7 @@ restarts; log in again any time with the same mobile number + OTP.
 ## Project Layout
 
 ```
-src/main/java/com/dhatchina/dhatchinamart/
+src/main/java/com/dhatchina/aarishmart/
   controller/    Servlets (Auth, Otp, Product, Cart, Checkout, Order, Seller, Admin)
   dao/           JDBC DAOs (users, products, cart, orders, otp_verifications)
   model/         POJOs (User, OtpVerification, ...)
@@ -115,10 +115,10 @@ db/migrations/                 Idempotent migrations (run on every boot)
 mvn clean package
 
 # 2. Deploy to Tomcat 9
-cp target/dhatchinamart.war <TOMCAT_HOME>/webapps/
+cp target/aarishmart.war <TOMCAT_HOME>/webapps/
 
 # 3. Open
-http://localhost:8080/dhatchinamart
+http://localhost:8080/aarishmart
 ```
 
 ### Configuration (env vars or a `.env` file, all optional)
@@ -130,7 +130,7 @@ the working directory, `${catalina.base}` (Tomcat) or the user home
 
 | Variable                      | Default                              |
 | ----------------------------- | ------------------------------------ |
-| `DHAT_DB_URL`                 | `jdbc:h2:file:~/dhatchinamart;AUTO_SERVER=TRUE` |
+| `DHAT_DB_URL`                 | `jdbc:h2:file:~/aarishmart;AUTO_SERVER=TRUE` |
 | `DHAT_DB_USER`                | `sa`                                 |
 | `DHAT_DB_PASSWORD`            | _(empty)_                            |
 | `DHAT_DB_POOL_MAX`            | `10`                                 |

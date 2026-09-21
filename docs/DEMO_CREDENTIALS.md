@@ -6,11 +6,11 @@ This document lists the pre-seeded accounts and demo data shipped in `db/seed.sq
 
 | Role | Email | Password | Mobile (OTP sign-in) |
 |---|---|---|---|
-| Platform Admin | `admin@dhatchinamart.com` | `Admin@123` | `9876500001` |
-| Buyer | `buyer@dhatchinamart.com` | `Buyer@123` | `9844090001` |
-| Student Buyer | `student@dhatchinamart.com` | `Student@123` | `9844090002` |
-| Seller | `seller@dhatchinamart.com` | `Seller@123` | `9844090003` |
-| Campus Seller | `campus@dhatchinamart.com` | `Campus@123` | `9844090004` |
+| Platform Admin | `admin@aarishmart.com` | `Admin@123` | `9876500001` |
+| Buyer | `buyer@aarishmart.com` | `Buyer@123` | `9844090001` |
+| Student Buyer | `student@aarishmart.com` | `Student@123` | `9844090002` |
+| Seller | `seller@aarishmart.com` | `Seller@123` | `9844090003` |
+| Campus Seller | `campus@aarishmart.com` | `Campus@123` | `9844090004` |
 
 Signing in with the email + password above works directly. Signing in with the mobile number sends a one-time OTP (in `development` OTP mode the code is printed to the UI/logs).
 

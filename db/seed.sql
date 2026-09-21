@@ -1,27 +1,27 @@
--- DhatchinaMart seed data
+-- AarishMart seed data
 -- One admin + a curated set of demo accounts so the whole marketplace
 -- (browse, cart, checkout, orders, seller fulfilment, ratings) can be
 -- explored without registering. Passwords are real bcrypt hashes.
 --
 -- Demo accounts (see docs/DEMO_CREDENTIALS.md for full notes):
---   admin@dhatchinamart.com   / Admin@123    (9876500001) - Platform Admin
---   buyer@dhatchinamart.com   / Buyer@123    (9844090001) - Buyer, cart ready to checkout
---   student@dhatchinamart.com / Student@123  (9844090002) - Buyer with a delivered order
---   seller@dhatchinamart.com  / Seller@123   (9844090003) - Seller (Electronics)
---   campus@dhatchinamart.com  / Campus@123   (9844090004) - Seller (Books)
+--   admin@aarishmart.com   / Admin@123    (9876500001) - Platform Admin
+--   buyer@aarishmart.com   / Buyer@123    (9844090001) - Buyer, cart ready to checkout
+--   student@aarishmart.com / Student@123  (9844090002) - Buyer with a delivered order
+--   seller@aarishmart.com  / Seller@123   (9844090003) - Seller (Electronics)
+--   campus@aarishmart.com  / Campus@123   (9844090004) - Seller (Books)
 -- All four demo mobiles accept a mock/dev OTP when signing in with a phone.
 --
 -- The remaining 33 of the 40 catalog products stay owned by the platform
 -- admin (id 1) so the admin catalog is always populated.
 
 INSERT INTO users (id, name, email, mobile_number, password_hash, role) VALUES
-  (1, 'Platform Admin', 'admin@dhatchinamart.com', '9876500001', '$2a$10$i3Xw2lMwEHYovzkspFaqOu/aFUkFU90ANtgkNCdz5z9QKWYHgIlRO', 'ADMIN');
+  (1, 'Platform Admin', 'admin@aarishmart.com', '9876500001', '$2a$10$i3Xw2lMwEHYovzkspFaqOu/aFUkFU90ANtgkNCdz5z9QKWYHgIlRO', 'ADMIN');
 
 INSERT INTO users (id, name, email, mobile_number, password_hash, role, created_at) VALUES
-  (2, 'Demo Buyer',       'buyer@dhatchinamart.com',     '9844090001', '$2a$10$D46XcZlULkF49TTrhsgTIuM/5LRXZhreOltf1NYuky9pmm/pCQDem', 'BUYER',  '2026-08-01 09:00:00'),
-  (3, 'Demo Student',     'student@dhatchinamart.com',   '9844090002', '$2a$10$oAUkm7s5tczbsM1fNcAfRuMgn/bCyYP3XkGmphGrKEQhlf7ZgM5YS', 'BUYER',  '2026-08-01 09:05:00'),
-  (4, 'Demo Seller',      'seller@dhatchinamart.com',    '9844090003', '$2a$10$3LpK6oFgMhZnZaxgloXo0u8zdG.i.gmMug7Pn.TXIL/9t5W7h8fam', 'SELLER', '2026-08-02 10:00:00'),
-  (5, 'Demo Campus Shop', 'campus@dhatchinamart.com',    '9844090004', '$2a$10$3dPaAtqIiCBtKh.Wm0.HjegiZyi83OZNFn9hZHopscNNChZSOn0mu', 'SELLER', '2026-08-02 10:10:00');
+  (2, 'Demo Buyer',       'buyer@aarishmart.com',     '9844090001', '$2a$10$D46XcZlULkF49TTrhsgTIuM/5LRXZhreOltf1NYuky9pmm/pCQDem', 'BUYER',  '2026-08-01 09:00:00'),
+  (3, 'Demo Student',     'student@aarishmart.com',   '9844090002', '$2a$10$oAUkm7s5tczbsM1fNcAfRuMgn/bCyYP3XkGmphGrKEQhlf7ZgM5YS', 'BUYER',  '2026-08-01 09:05:00'),
+  (4, 'Demo Seller',      'seller@aarishmart.com',    '9844090003', '$2a$10$3LpK6oFgMhZnZaxgloXo0u8zdG.i.gmMug7Pn.TXIL/9t5W7h8fam', 'SELLER', '2026-08-02 10:00:00'),
+  (5, 'Demo Campus Shop', 'campus@aarishmart.com',    '9844090004', '$2a$10$3dPaAtqIiCBtKh.Wm0.HjegiZyi83OZNFn9hZHopscNNChZSOn0mu', 'SELLER', '2026-08-02 10:10:00');
 
 -- ==================================================
 -- PRODUCT CATALOG (40 products, 5 categories x 8)
@@ -96,7 +96,7 @@ UPDATE products SET seller_id = 5 WHERE id IN (13, 16);
 
 -- ==================================================
 -- DEMO BUYER CART
--- buyer@dhatchinamart.com (id 2) left a cart ready to checkout.
+-- buyer@aarishmart.com (id 2) left a cart ready to checkout.
 -- ==================================================
 
 INSERT INTO cart_items (id, user_id, product_id, quantity) VALUES

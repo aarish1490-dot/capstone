@@ -7,7 +7,7 @@
 <div class="form-card" style="max-width:560px;text-align:center;">
     <h2 style="color:var(--primary);">Order placed successfully!</h2>
     <p style="margin:12px 0;color:var(--gray);">
-        Thank you for shopping at DhatchinaMart. Your order has been recorded with mock payment confirmation.
+        Thank you for shopping at AarishMart. Your order has been recorded with mock payment confirmation.
     </p>
     <p style="font-size:1.1rem;">
         Order ID: <strong>#<c:out value="${order.id}"/></strong>

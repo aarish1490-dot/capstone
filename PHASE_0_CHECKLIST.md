@@ -1,10 +1,10 @@
-# DhatchinaMart Phase 0 — Audit Checklist
+# AarishMart Phase 0 — Audit Checklist
 
 Companion to `PHASE_0_AUDIT.md`. Nothing here changes code — it is a verification
 checklist for the Phase 0 audit.
 
 ## Project & Build
-- [x] Project name: DhatchinaMart (`com.dhatchina:dhatchinamart:1.0.0`, WAR)
+- [x] Project name: AarishMart (`com.dhatchina:aarishmart:1.0.0`, WAR)
 - [x] Java target: 17 (`maven.compiler.release=17`); docs wrongly say Java 11
 - [x] Maven 3 required; **not installed locally**, no `mvnw`, Docker daemon down
   → tests NOT re-run; recorded Surefire result: **87/87 passing**

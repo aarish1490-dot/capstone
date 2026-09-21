@@ -1,4 +1,4 @@
-# DhatchinaMart — MVP Review
+# AarishMart — MVP Review
 
 Status: **MVP complete** — all core flows implemented, verified end-to-end, and documented.
 
@@ -8,7 +8,7 @@ Status: **MVP complete** — all core flows implemented, verified end-to-end, an
 | ------------------------ | ------ |
 | Unit + integration tests | **67/67 passed** (`mvn clean verify`) |
 | Black-box E2E checks     | Verified against the deployed WAR on Tomcat (buyer, seller, admin journeys, OTP login, RBAC) |
-| Build                    | Single `dhatchinamart.war`, `BUILD SUCCESS` |
+| Build                    | Single `aarishmart.war`, `BUILD SUCCESS` |
 
 ## Mobile Number + OTP Authentication
 
@@ -49,7 +49,7 @@ Mobile Number
 
 ## Who Can Log In
 
-Only `admin@dhatchinamart.com / Admin@123` (mobile `9876500001`) is pre-seeded.
+Only `admin@aarishmart.com / Admin@123` (mobile `9876500001`) is pre-seeded.
 Every other account is self-registered on the sign-up page as a Buyer or Seller —
 credentials are stored (bcrypt-hashed) in the H2 database and work on future
 logins via mobile + OTP. Roles are fixed at registration.
@@ -105,7 +105,7 @@ logins via mobile + OTP. Roles are fixed at registration.
 ## Run Instructions
 
 1. `mvn clean package`
-2. Copy `target/dhatchinamart.war` into Tomcat 9's `webapps/` and start Tomcat.
-3. Open `http://localhost:9090/dhatchinamart` (admin is seeded with mobile
+2. Copy `target/aarishmart.war` into Tomcat 9's `webapps/` and start Tomcat.
+3. Open `http://localhost:9090/aarishmart` (admin is seeded with mobile
    `9876500001`; everyone else self-registers). In dev mode the OTP is printed to
-   `logs/dhatchinamart.log` as `[DEV OTP] OTP: xxxxxx`.
+   `logs/aarishmart.log` as `[DEV OTP] OTP: xxxxxx`.

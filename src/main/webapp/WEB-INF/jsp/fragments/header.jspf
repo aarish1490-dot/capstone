@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" content="${_csrfToken}">
 <script>window.CONTEXT_PATH = "${ctx}";</script>
-    <title><c:out value="${empty title ? 'DhatchinaMart' : title}"/> - DhatchinaMart</title>
+    <title><c:out value="${empty title ? 'AarishMart' : title}"/> - AarishMart</title>
     <link rel="stylesheet" href="${ctx}/css/style.css">
 </head>
 <body>

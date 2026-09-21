@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dhatchina</groupId>
-    <artifactId>dhatchinamart</artifactId>
+    <artifactId>aarishmart</artifactId>
     <version>1.0.0</version>
     <packaging>war</packaging>
-    <name>DhatchinaMart</name>
+    <name>AarishMart</name>
     <description>Multi-seller e-commerce marketplace MVP</description>
 
     <properties>
@@ -82,7 +82,7 @@
     </dependencies>
 
     <build>
-        <finalName>dhatchinamart</finalName>
+        <finalName>aarishmart</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

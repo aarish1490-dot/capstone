@@ -84,7 +84,7 @@
             <button type="submit" class="btn btn-secondary" style="width:100%;">Login</button>
         </form>
         <p class="auth-alt" style="margin-top:10px;text-align:center;">
-            Demo: buyer@dhatchinamart.com / Buyer@123
+            Demo: buyer@aarishmart.com / Buyer@123
         </p>
     </div>
 

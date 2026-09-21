@@ -1,10 +1,10 @@
-# DhatchinaMart Phase 0 Audit
+# AarishMart Phase 0 Audit
 
 Audit-only report. No production/source files were modified. Date: 2026-09-15.
 
 ## 1. Executive Summary
 
-DhatchinaMart is a Java EE (Servlet 4.0 / JSP / JSTL) multi-seller e-commerce
+AarishMart is a Java EE (Servlet 4.0 / JSP / JSTL) multi-seller e-commerce
 marketplace running on H2 + HikariCP behind a classic Servlet → Service → DAO
 architecture. The core buyer journey (registration → browse → cart → mock
 checkout → order history) is **implemented, clean and fully tested**. 87 tests
@@ -35,11 +35,11 @@ Overall capstone readiness: **~58/100**.
 
 ## 2. Project Overview
 
-- **Name:** DhatchinaMart
+- **Name:** AarishMart
 - **Description:** Multi-seller e-commerce marketplace MVP with Buyer, Seller and Admin roles
-- **Group/artifact:** `com.dhatchina:dhatchinamart:1.0.0`
-- **Packaging:** WAR (`dhatchinamart.war`)
-- **Repo:** https://github.com/dhatchina1028/DhatchinaMart.git
+- **Group/artifact:** `com.dhatchina:aarishmart:1.0.0`
+- **Packaging:** WAR (`aarishmart.war`)
+- **Repo:** https://github.com/dhatchina1028/AarishMart.git
 - **Scope:** Pure Java EE — no Spring, no front-end frameworks, hand-written SQL and CSS
 
 ## 3. Technology Stack
@@ -50,7 +50,7 @@ Overall capstone readiness: **~58/100**.
 | Build | Maven 3 (wrapper absent; not installed on this machine) | `pom.xml`, no `mvnw` |
 | Web | Servlet 4.0, JSP 2.3, JSTL 1.2 (`javax.*`) | `pom.xml`, `web.xml` (4.0) |
 | App server | Tomcat 9.x (Docker image `tomcat:9.0-jre17-temurin`) | `Dockerfile` |
-| Database | H2 2.3.232 file mode (`jdbc:h2:file:~/dhatchinamart;AUTO_SERVER=TRUE`) | `pom.xml`, `DbUtil.java` |
+| Database | H2 2.3.232 file mode (`jdbc:h2:file:~/aarishmart;AUTO_SERVER=TRUE`) | `pom.xml`, `DbUtil.java` |
 | Pool | HikariCP 5.1.0 | `pom.xml`, `DbUtil.java` |
 | JSON | Gson 2.11.0 | `pom.xml`, `CartServlet` |
 | Passwords | jBCrypt 0.4 (cost 10) | `AuthUtil.java` |
@@ -136,7 +136,7 @@ Verified good practices:
 - **Money is `DECIMAL(10,2)`** everywhere (`price`, `total_amount`, `unit_price`) — no float money.
 - **`created_at` on every table** ✓
 - Money math uses `BigDecimal` in services ✓
-- Seed data: admin account (`admin@dhatchinamart.com` / mobile `9876500001`,
+- Seed data: admin account (`admin@aarishmart.com` / mobile `9876500001`,
   real bcrypt hash) + **40 products** across 5 categories (Electronics,
   Accessories, Books, Clothing, Home — 8 each) owned by the admin seller.
 - Migration numbering starts at `001` (only one migration) and is idempotent.
@@ -300,7 +300,7 @@ has no attempt limiting.
 | Brute force | **WEAK** | Email login unlimited; OTP capped at 5 attempts/OTP + 60 s resend |
 | Input validation | **GOOD** | Name/email/mobile/password/price/stock/quantity/URL validated; URL must be http(s) |
 | File/path security | **N/A-safe** | No file upload or filesystem access from user input |
-| Hardcoded credentials | **OK** | Only seeded admin bcrypt hash in `seed.sql` (by design). `login.jsp` shows a demo `buyer@dhatchinamart.com / Buyer@123` that is **not seeded** (misleading UI, not a secret leak) |
+| Hardcoded credentials | **OK** | Only seeded admin bcrypt hash in `seed.sql` (by design). `login.jsp` shows a demo `buyer@aarishmart.com / Buyer@123` that is **not seeded** (misleading UI, not a secret leak) |
 | API keys / secrets | **NONE** in code | All via env / `.env` |
 | System.out / printStackTrace | **NONE** | SLF4J used throughout |
 | Unsafe redirects | **NONE FOUND** | Redirects use `contextPath +` fixed paths only |
@@ -344,7 +344,7 @@ Do-not-fix observations:
   make margins/buttons inconsistent.
 - Button set is consistent (`btn`, `btn-secondary`, `btn-sm`, `btn-danger`)
   but spacing varies due to inline overrides.
-- **Stale demo credentials** under email login: "buyer@dhatchinamart.com /
+- **Stale demo credentials** under email login: "buyer@aarishmart.com /
   Buyer@123" — no such seed account exists → guaranteed failed login.
 - `error-403.jsp` exists but is **not wired** in `web.xml` (only 404/500 +
   Throwable) — authz errors fall back to the generic container page.
@@ -427,9 +427,9 @@ checks" — **the file does not exist** in the repository.
 
 | Item | Status |
 |---|---|
-| War generation | ✓ `mvn-war-plugin` → `dhatchinamart.war` |
+| War generation | ✓ `mvn-war-plugin` → `aarishmart.war` |
 | Dockerfile | ✓ Multi-stage: `maven:3.9-eclipse-temurin-17` → `tomcat:9.0-jre17-temurin`; copies WAR to webapps (build skips tests) |
-| render.yaml | ✓ Single Docker web service, healthCheck `/dhatchinamart/`, autoDeploy |
+| render.yaml | ✓ Single Docker web service, healthCheck `/aarishmart/`, autoDeploy |
 | Tomcat compatibility | ✓ javax.* Servlet 4.0 on Tomcat 9 |
 
 **Deployment blockers (P0/P1):**
@@ -449,9 +449,9 @@ checks" — **the file does not exist** in the repository.
 ## 15. Git / CI Audit
 
 - Branch: `main` (tracks `origin/main`).
-- Remote: `https://github.com/dhatchina1028/DhatchinaMart.git`.
+- Remote: `https://github.com/dhatchina1028/AarishMart.git`.
 - Commits: **8** (2026-07-30 initial → 2026-08-12 last: "style: redesign
-  DhatchinaMart visual theme").
+  AarishMart visual theme").
 - Commit style: inconsistent — a few conventional prefixes (`style:`) but also
   `Project`, `add target`, `add logs`, `Delete .gitattributes`.
 - **Uncommitted work:** the entire OTP feature is **untracked**
@@ -519,7 +519,7 @@ screenshots, deployed URL, and a "known limitations" section in README
 
 | Area | Problem | Impact | Direction | Priority |
 |---|---|---|---|---|
-| Login | Demo creds "buyer@dhatchinamart.com / Buyer@123" don't exist | Users can't log in with the shown demo | Show real seeded account or remove | P1 |
+| Login | Demo creds "buyer@aarishmart.com / Buyer@123" don't exist | Users can't log in with the shown demo | Show real seeded account or remove | P1 |
 | Login | Dev OTP box shown whenever dev mode (deploy risk) | Confusing + insecure on prod | Gate by OTP_MODE + hide in prod banner | P1 |
 | Register | No role selection explainer UI | Unclear buy/sell choice | Improve role cards | P3 |
 | Navigation | No cart count badge; seller/admin links only in nav | Poor orientation | Add cart count + role-aware nav | P2 |

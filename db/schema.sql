@@ -1,4 +1,4 @@
--- DhatchinaMart database schema (H2 2.x)
+-- AarishMart database schema (H2 2.x)
 
 DROP TABLE IF EXISTS reviews;
 DROP TABLE IF EXISTS otp_verifications;

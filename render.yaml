@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: dhatchinamart
+    name: aarishmart
     runtime: docker
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /dhatchinamart/api/v1/health
+    healthCheckPath: /aarishmart/api/v1/health
     autoDeploy: true
     # Free demo deployment: no persistent disk. The H2 database lives on the
     # ephemeral container filesystem (/tmp) and is RE-SEEDED on each fresh
@@ -14,7 +14,7 @@ services:
     envVars:
       # H2 on the ephemeral, writable container filesystem (DEMO ONLY).
       - key: DHAT_DB_URL
-        value: jdbc:h2:file:/tmp/dhatchinamart;AUTO_SERVER=TRUE
+        value: jdbc:h2:file:/tmp/aarishmart;AUTO_SERVER=TRUE
       # Demo deployment: OTPs are the mock/development provider (shown on the
       # login page). For real SMS set OTP_MODE=production + SMS_PROVIDER=real
       # and provide SMS_API_URL / SMS_API_KEY. Production mode fails fast at
