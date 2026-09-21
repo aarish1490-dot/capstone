@@ -16,7 +16,7 @@
 <body>
 <nav class="navbar">
     <div class="container navbar-inner">
-        <a href="${ctx}/" class="brand">Dhatchina<span>Mart</span></a>
+        <a href="${ctx}/" class="brand">Aarish<span>Mart</span></a>
         <div class="nav-links">
             <a href="${ctx}/products">Products</a>
             <c:choose>

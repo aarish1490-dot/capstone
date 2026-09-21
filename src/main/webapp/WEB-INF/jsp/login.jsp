@@ -4,7 +4,7 @@
 <%@ include file="/WEB-INF/jsp/fragments/header.jspf" %>
 
 <div class="auth-card">
-    <div class="auth-brand">Dhatchina<span>Mart</span></div>
+    <div class="auth-brand">Aarish<span>Mart</span></div>
     <h2 class="auth-title">Welcome Back</h2>
 
     <c:if test="${param.registered == '1'}">
